@@ -265,6 +265,21 @@ const DataMonitoring = () => {
     for: 12,
   });
 
+  const [months] = useState([
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "Mei",
+    "Jun",
+    "Jul",
+    "Agu",
+    "Sep",
+    "Okt",
+    "Nov",
+    "Des",
+  ]);
+
   const resetSliceIndex = () => {
     if (windowSize.width <= 768) {
       setSliceIndex({
@@ -319,8 +334,11 @@ const DataMonitoring = () => {
       const day = date.getDate().toString().padStart(2, "0");
       const month = (previousMonth + 1).toString().padStart(2, "0");
       const year = date.getFullYear().toString();
+      const hour = date.getHours();
+      const minute = date.getMinutes().toString().padStart(2, "0");
 
-      const formattedDate = `${day} - ${month} - ${year}`;
+      // const formattedDate = `${day} - ${month} - ${year}`;
+      const formattedDate = `${day} ${months.at(month-1)} ${year} ${hour}:${minute}`;
 
       return {
         lastMonth: formattedDate,

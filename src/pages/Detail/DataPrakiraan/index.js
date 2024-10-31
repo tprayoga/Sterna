@@ -48,6 +48,7 @@ const DataPrakiraan = () => {
   const [subscription, setSubscription] = useState(true);
   const [listPayment, setListPayment] = useState([]);
   const [dataPayment, setDataPayment] = useState(null);
+  const [isTahunan, setIsTahunan] = useState("default");
 
   const [months] = useState([
     "Jan",
@@ -120,7 +121,14 @@ const DataPrakiraan = () => {
           payment.status === "Success"
         ) {
           const dateParts = payment.updated_at.split(" ")[0].split("-");
-          const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+          const hourParts = payment.updated_at.split(" ")[1].split(":");
+
+          // const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+          if(isTahunan === "default") {
+            var formattedDate = `${dateParts[2]} ${months.at(dateParts[1]-1)} ${dateParts[0]} ${hourParts[0]}:${hourParts[1]}`;
+          } else {
+            var formattedDate = `${months.at(dateParts[1]-1)} ${dateParts[0]}`;
+          }
 
           setSubscription(true);
           setDataPayment({
@@ -133,7 +141,7 @@ const DataPrakiraan = () => {
         }
       }
     }
-  }, [listPayment, lonLat]);
+  }, [listPayment, lonLat, isTahunan]);
 
   // check if already have user and subscription
   useEffect(() => {
@@ -333,8 +341,6 @@ const DataPrakiraan = () => {
     "bulan-6",
     "bulan-7",
   ]);
-
-  const [isTahunan, setIsTahunan] = useState("default");
 
   // select option table data
   const [tableDataOption, setTableDataOption] = useState(0);
