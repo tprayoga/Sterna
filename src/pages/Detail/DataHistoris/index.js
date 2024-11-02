@@ -1741,8 +1741,8 @@ const DataHistoris = () => {
                   }}
                   colors={["#FFA537", "rgba(249, 115, 22, 1)"]}
                   yaxis={{
-                    max: 7,
-                    tickAmount: 14,
+                    // max: 7,
+                    tickAmount: 10,
                   }}
                 />
                 {isTahunan === "year" && (
@@ -2012,8 +2012,8 @@ const DataHistoris = () => {
                     showGrid
                     yaxis={
                       isTahunan === "month" && {
-                        max: 450,
-                        tickAmount: 18,
+                        // max: 450,
+                        tickAmount: 15,
                       }
                     }
                   />

@@ -1440,8 +1440,8 @@ const DataPrakiraan = () => {
                     colors={["#FFA537", "rgba(249, 115, 22, 1)"]}
                     height={"300"}
                     yaxis={{
-                      max: 7,
-                      tickAmount: 14,
+                      // max: 7,
+                      tickAmount: 10,
                     }}
                   />
                 </div>
