@@ -169,8 +169,8 @@ const DataMonitoring = () => {
 
   const [slicePotensi, setSlicePotensi] = useState({
     start: 0,
-    finish: 4,
-    for: 4,
+    finish: 7,
+    for: 7,
   });
 
   const resetSlicePotensi = () => {
@@ -189,8 +189,8 @@ const DataMonitoring = () => {
     } else {
       setSlicePotensi({
         start: 0,
-        finish: 4,
-        for: 4,
+        finish: 7,
+        for: 7,
       });
     }
   };
@@ -835,8 +835,8 @@ const DataMonitoring = () => {
                         onClick={() => {
                           setSlicePotensi({
                             ...slicePotensi,
-                            start: slicePotensi.start - slicePotensi.for,
-                            finish: slicePotensi.finish - slicePotensi.for,
+                            start: slicePotensi.start - 1,
+                            finish: slicePotensi.finish - 1,
                           });
                         }}
                       >
@@ -857,8 +857,8 @@ const DataMonitoring = () => {
                         onClick={() => {
                           setSlicePotensi({
                             ...slicePotensi,
-                            start: slicePotensi.start + slicePotensi.for,
-                            finish: slicePotensi.finish + slicePotensi.for,
+                            start: slicePotensi.start + 1,
+                            finish: slicePotensi.finish + 1,
                           });
                         }}
                       >
@@ -1122,11 +1122,9 @@ const DataMonitoring = () => {
                           setSliceIndeksKebeningan({
                             ...sliceIndeksKebeningan,
                             start:
-                              sliceIndeksKebeningan.start -
-                              sliceIndeksKebeningan.for,
+                              sliceIndeksKebeningan.start - 1,
                             finish:
-                              sliceIndeksKebeningan.finish -
-                              sliceIndeksKebeningan.for,
+                              sliceIndeksKebeningan.finish - 1,
                           });
                         }}
                       >
@@ -1150,11 +1148,9 @@ const DataMonitoring = () => {
                           setSliceIndeksKebeningan({
                             ...sliceIndeksKebeningan,
                             start:
-                              sliceIndeksKebeningan.start +
-                              sliceIndeksKebeningan.for,
+                              sliceIndeksKebeningan.start + 1,
                             finish:
-                              sliceIndeksKebeningan.finish +
-                              sliceIndeksKebeningan.for,
+                              sliceIndeksKebeningan.finish + 1,
                           });
                         }}
                       >

@@ -202,8 +202,8 @@ const DataPrakiraan = () => {
 
   const [slicePotensi, setSlicePotensi] = useState({
     start: 0,
-    finish: 4,
-    for: 4,
+    finish: 7,
+    for: 7,
   });
 
   const resetSlicePotensi = () => {
@@ -222,8 +222,8 @@ const DataPrakiraan = () => {
     } else {
       setSlicePotensi({
         start: 0,
-        finish: 4,
-        for: 4,
+        finish: 7,
+        for: 7,
       });
     }
   };
@@ -256,8 +256,8 @@ const DataPrakiraan = () => {
   const [dataCurahHujan, setDataCurahHujan] = useState([]);
   const [sliceIndeksKebeningan, setSliceIndeksKebeningan] = useState({
     start: 0,
-    finish: 4,
-    for: 4,
+    finish: 7,
+    for: 7,
   });
 
   const resetSliceIndeksKebeningan = () => {
@@ -276,8 +276,8 @@ const DataPrakiraan = () => {
     } else {
       setSliceIndeksKebeningan({
         start: 0,
-        finish: 4,
-        for: 4,
+        finish: 7,
+        for: 7,
       });
     }
   };
@@ -1290,8 +1290,8 @@ const DataPrakiraan = () => {
                           onClick={() => {
                             setSlicePotensi({
                               ...slicePotensi,
-                              start: slicePotensi.start - slicePotensi.for,
-                              finish: slicePotensi.finish - slicePotensi.for,
+                              start: slicePotensi.start - 1,
+                              finish: slicePotensi.finish - 1,
                             });
                           }}
                         >
@@ -1312,8 +1312,8 @@ const DataPrakiraan = () => {
                           onClick={() => {
                             setSlicePotensi({
                               ...slicePotensi,
-                              start: slicePotensi.start + slicePotensi.for,
-                              finish: slicePotensi.finish + slicePotensi.for,
+                              start: slicePotensi.start + 1,
+                              finish: slicePotensi.finish + 1,
                             });
                           }}
                         >
@@ -1838,11 +1838,9 @@ const DataPrakiraan = () => {
                             setSliceIndeksKebeningan({
                               ...sliceIndeksKebeningan,
                               start:
-                                sliceIndeksKebeningan.start -
-                                sliceIndeksKebeningan.for,
+                                sliceIndeksKebeningan.start - 1,
                               finish:
-                                sliceIndeksKebeningan.finish -
-                                sliceIndeksKebeningan.for,
+                                sliceIndeksKebeningan.finish - 1,
                             });
                           }}
                         >
@@ -1867,11 +1865,9 @@ const DataPrakiraan = () => {
                             setSliceIndeksKebeningan({
                               ...sliceIndeksKebeningan,
                               start:
-                                sliceIndeksKebeningan.start +
-                                sliceIndeksKebeningan.for,
+                                sliceIndeksKebeningan.start + 1,
                               finish:
-                                sliceIndeksKebeningan.finish +
-                                sliceIndeksKebeningan.for,
+                                sliceIndeksKebeningan.finish + 1,
                             });
                           }}
                         >
