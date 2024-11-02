@@ -261,8 +261,8 @@ const DataMonitoring = () => {
   const [tableData, setTableData] = useState([]);
   const [sliceIndex, setSliceIndex] = useState({
     start: 0,
-    end: 12,
-    for: 12,
+    end: 24,
+    for: 24,
   });
 
   const [months] = useState([
@@ -296,8 +296,8 @@ const DataMonitoring = () => {
     } else {
       setSliceIndex({
         start: 0,
-        end: 12,
-        for: 12,
+        end: 24,
+        for: 24,
       });
     }
   };
@@ -1017,7 +1017,7 @@ const DataMonitoring = () => {
                           {item2 ? item2 : 0}
                         </div>
                       ) : item.id === 10 ? (
-                        <div className="flex flex-col w-[60px] h-full justify-center items-center text-sm font-bold">
+                        <div className="flex flex-col w-[20px] h-full justify-center items-center text-sm font-bold">
                           <CustomBarChart
                             width="100%"
                             data={item2}
