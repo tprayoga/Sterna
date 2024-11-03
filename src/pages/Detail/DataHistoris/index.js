@@ -1839,7 +1839,7 @@ const DataHistoris = () => {
                       item.border ? "border-b-2 border-[#D9D9D9]" : ""
                     }
             ${
-              item.id === 4 || item.id === 6 || item.id === 10 || item.id === 11 || item.id === 12
+              item.id === 4 || item.id === 5 || item.id === 6 || item.id === 10 || item.id === 11 || item.id === 12
                 ? "h-[150px] flex items-center"
                 : ""
             }
@@ -1878,7 +1878,7 @@ const DataHistoris = () => {
                     )}
 
                     {/* Chart */}
-                    {item.id === 4 || item.id === 6 || item.id === 10 || item.id === 12 ? (
+                    {item.id === 4 || item.id === 5 || item.id === 6 || item.id === 10 || item.id === 12 ? (
                       <div
                         className="absolute w-[79.5%]  top-0 right-[3%]"
                         style={{
@@ -1979,11 +1979,14 @@ const DataHistoris = () => {
                           <div className="flex flex-col w-[40px] text-center gap-1 justify-center pb-4 pt-2 items-center text-sm font-medium">
                             {item2 ? parseFloat(item2)?.toFixed(1) : 0}
                           </div>
-                        ) : item.id === 4 ? null : item.id === 5 ? (
-                          <div className="flex flex-col gap-1 justify-center items-center text-sm font-bold">
-                            {item2 ? parseFloat(item2)?.toFixed(1) : 0}
-                          </div>
-                        ) : item.id === 6 ? null : item.id === 7 ||
+                        ) : item.id === 4 ? null
+                        : item.id === 5 ? null
+                        // (
+                        //   <div className="flex flex-col gap-1 justify-center items-center text-sm font-bold">
+                        //     {item2 ? parseFloat(item2)?.toFixed(1) : 0}
+                        //   </div>
+                        // ) 
+                        : item.id === 6 ? null : item.id === 7 ||
                           item.id === 8 ||
                           item.id === 9 ? (
                           <div className="gap-1 w-[30px] text-center text-sm font-bold">
