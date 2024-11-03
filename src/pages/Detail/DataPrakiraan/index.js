@@ -488,6 +488,18 @@ const DataPrakiraan = () => {
           data: dataBulananSuhu?.data[0].data,
           border: true,
         },
+        {
+          id: 3,
+          name: "Potensi Energi Surya",
+          data: dataBulananGhi?.data[0].data,
+          border: true,
+        },
+        {
+          id: 4,
+          name: "Indeks Kebeningan",
+          data: dataBulananIndex?.data[0].data,
+          border: true,
+        },
       ]);
     }
   }, [
@@ -1170,7 +1182,7 @@ const DataPrakiraan = () => {
             </div>
           </div>
 
-          {isTahunan === "default" ? (
+          {isTahunan === "default" && (
             <div className="bg-[#EBFFE4] box-shadow rounded p-2 mt-4">
               <p className="text-center text-xl ">
                 Global Horizontal Irradiance (GHI)
@@ -1422,7 +1434,8 @@ const DataPrakiraan = () => {
                 ))}
               </div>
             </div>
-          ) : (
+          )}
+          {/* : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-[#EBFFE4] box-shadow rounded p-2 mt-4">
                 <p className="text-center text-base font-medium ">
@@ -1464,7 +1477,7 @@ const DataPrakiraan = () => {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Table Prakiraan */}
           {tableData.length === 0 ? (
@@ -1638,7 +1651,7 @@ const DataPrakiraan = () => {
                       className={`flex justify-between pb-2 relative ${
                         item.border ? "border-b-2 border-[#D9D9D9]" : ""
                       }
-                  ${item.id === 2 ? "h-[150px] flex items-center" : ""}
+                  ${item.id === 2 || item.id === 3 || item.id === 4 ? "h-[150px] flex items-center" : ""}
                   `}
                     >
                       {index === 0 && (
@@ -1673,7 +1686,7 @@ const DataPrakiraan = () => {
                       )}
 
                       {/* Chart */}
-                      {item.id === 2 ? (
+                      {item.id === 2 || item.id === 3 || item.id === 4 ? (
                         <div
                           className="absolute w-[79.5%]  top-0 right-[3%]"
                           style={{
@@ -1690,7 +1703,7 @@ const DataPrakiraan = () => {
                                   )
                                 : item.data
                             }
-                            colors={"#DD2000"}
+                            colors={item.id === 2 ? "#DD2000" : item.id === 3 ? "rgb(250, 204, 21)" : "#1DB5DB"}
                           />
                         </div>
                       ) : null}
