@@ -144,16 +144,18 @@ const ListSubscription = () => {
     navigate("/");
   }
 
-  const dateDifference = (updatedDate, expDate) => {
-    const firstDate = new Date(updatedDate);
+  const dateDifference = (expDate) => {
+    const currentDate = new Date();
+
+    const firstDate = currentDate;
     const secondDate = new Date(expDate);
-    
-    const differenceInMs = Math.abs(firstDate - secondDate);
-    
+
+    const differenceInMs = Math.abs(secondDate - firstDate);
+
     const differenceInDays = Math.ceil(differenceInMs / (1000 * 60 * 60 * 24));
-    
+
     return differenceInDays;
-}
+  }
 
   return (
     <div className="px-[2%] py-4 2xl:container mx-auto">
@@ -392,7 +394,7 @@ const ListSubscription = () => {
                               Masa Aktif
                             </p>
                               <p className={`font-medium`}>
-                                {dateDifference(item.updated_at.split(" ")[0], item.exp)} hari lagi
+                                {dateDifference(item.exp)} hari lagi
                               </p>
                           </div>
                         </div>
