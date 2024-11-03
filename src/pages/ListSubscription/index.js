@@ -144,6 +144,19 @@ const ListSubscription = () => {
     navigate("/");
   }
 
+  const dateDifference = (expDate) => {
+    const currentDate = new Date();
+
+    const firstDate = currentDate;
+    const secondDate = new Date(expDate);
+
+    const differenceInMs = Math.abs(secondDate - firstDate);
+
+    const differenceInDays = Math.ceil(differenceInMs / (1000 * 60 * 60 * 24));
+
+    return differenceInDays;
+  }
+
   return (
     <div className="px-[2%] py-4 2xl:container mx-auto">
       <div className="flex flex-col gap-1">
@@ -304,7 +317,7 @@ const ListSubscription = () => {
                         {/* end longitude & lattitude */}
 
                         {/* Paket */}
-                        <div className="h-full md:flex flex-col justify-center md:gap-2 mt-4 md:mt-0 hidden md:w-1/6 lg:1/4">
+                        <div className="h-full md:flex flex-col justify-center md:gap-2 mt-4 md:mt-0 hidden md:w-1/6 lg:1/5">
                           <div className="flex items-center md:gap-3 text-xs text-slate-600">
                             <p className="font-medium text-sm text-slate-500">
                               Paket
@@ -370,6 +383,39 @@ const ListSubscription = () => {
                             </div>
                           </div>
                         </div>
+                        {/* End status */}
+
+                        {item.status === "Success" &&
+                        /* Masa Aktif */
+                        <>
+                        <div className="h-full flex mt-4 md:mt-0 md:flex-col md:justify-center gap-2 md:w-[100px] md:gap-2 ml-8">
+                          <div className="flex items-center gap-2 md:flex-col text-xs text-slate-600">
+                            <p className="font-medium text-slate-500">
+                              Masa Aktif
+                            </p>
+                              <p className={`font-medium`}>
+                                {dateDifference(item.exp)} hari lagi
+                              </p>
+                          </div>
+                        </div>
+                        {/* End Masa Aktif */}
+
+                        
+                        {/* Perpanjang */ }
+                        {/* commentted for now */}
+                        {/* <div className="h-full flex mt-4 md:mt-0 md:flex-col md:justify-center gap-2 md:w-[100px] md:gap-2 ml-8">
+                          <div className="flex items-center gap-2 md:flex-col text-xs text-slate-600">
+                            <p className="font-medium text-slate-500">
+                              Aksi
+                            </p>
+                            <button>
+                              Perpanjang
+                            </button>
+                          </div>
+                        </div> */}
+                        </>
+                        /* End Perpanjang */
+                        }
                       </div>
 
                       <button

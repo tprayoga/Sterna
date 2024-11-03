@@ -399,8 +399,8 @@ const DetailHomePage = ({
               }}
               colors={["#FFA537"]}
               yaxis={{
-                max: 7,
-                tickAmount: 14,
+                // max: 7,
+                tickAmount: 10,
               }}
             />
           </div>

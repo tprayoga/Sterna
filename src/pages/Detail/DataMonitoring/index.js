@@ -169,8 +169,8 @@ const DataMonitoring = () => {
 
   const [slicePotensi, setSlicePotensi] = useState({
     start: 0,
-    finish: 4,
-    for: 4,
+    finish: 7,
+    for: 7,
   });
 
   const resetSlicePotensi = () => {
@@ -189,8 +189,8 @@ const DataMonitoring = () => {
     } else {
       setSlicePotensi({
         start: 0,
-        finish: 4,
-        for: 4,
+        finish: 7,
+        for: 7,
       });
     }
   };
@@ -261,9 +261,24 @@ const DataMonitoring = () => {
   const [tableData, setTableData] = useState([]);
   const [sliceIndex, setSliceIndex] = useState({
     start: 0,
-    end: 12,
-    for: 12,
+    end: 24,
+    for: 24,
   });
+
+  const [months] = useState([
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "Mei",
+    "Jun",
+    "Jul",
+    "Agu",
+    "Sep",
+    "Okt",
+    "Nov",
+    "Des",
+  ]);
 
   const resetSliceIndex = () => {
     if (windowSize.width <= 768) {
@@ -281,8 +296,8 @@ const DataMonitoring = () => {
     } else {
       setSliceIndex({
         start: 0,
-        end: 12,
-        for: 12,
+        end: 24,
+        for: 24,
       });
     }
   };
@@ -319,8 +334,11 @@ const DataMonitoring = () => {
       const day = date.getDate().toString().padStart(2, "0");
       const month = (previousMonth + 1).toString().padStart(2, "0");
       const year = date.getFullYear().toString();
+      const hour = date.getHours();
+      const minute = date.getMinutes().toString().padStart(2, "0");
 
-      const formattedDate = `${day} - ${month} - ${year}`;
+      // const formattedDate = `${day} - ${month} - ${year}`;
+      const formattedDate = `${day} ${months.at(month-1)} ${year} ${hour}:${minute}`;
 
       return {
         lastMonth: formattedDate,
@@ -817,8 +835,8 @@ const DataMonitoring = () => {
                         onClick={() => {
                           setSlicePotensi({
                             ...slicePotensi,
-                            start: slicePotensi.start - slicePotensi.for,
-                            finish: slicePotensi.finish - slicePotensi.for,
+                            start: slicePotensi.start - 1,
+                            finish: slicePotensi.finish - 1,
                           });
                         }}
                       >
@@ -839,8 +857,8 @@ const DataMonitoring = () => {
                         onClick={() => {
                           setSlicePotensi({
                             ...slicePotensi,
-                            start: slicePotensi.start + slicePotensi.for,
-                            finish: slicePotensi.finish + slicePotensi.for,
+                            start: slicePotensi.start + 1,
+                            finish: slicePotensi.finish + 1,
                           });
                         }}
                       >
@@ -999,7 +1017,7 @@ const DataMonitoring = () => {
                           {item2 ? item2 : 0}
                         </div>
                       ) : item.id === 10 ? (
-                        <div className="flex flex-col w-[60px] h-full justify-center items-center text-sm font-bold">
+                        <div className="flex flex-col w-[20px] h-full justify-center items-center text-sm font-bold">
                           <CustomBarChart
                             width="100%"
                             data={item2}
@@ -1104,11 +1122,9 @@ const DataMonitoring = () => {
                           setSliceIndeksKebeningan({
                             ...sliceIndeksKebeningan,
                             start:
-                              sliceIndeksKebeningan.start -
-                              sliceIndeksKebeningan.for,
+                              sliceIndeksKebeningan.start - 1,
                             finish:
-                              sliceIndeksKebeningan.finish -
-                              sliceIndeksKebeningan.for,
+                              sliceIndeksKebeningan.finish - 1,
                           });
                         }}
                       >
@@ -1132,11 +1148,9 @@ const DataMonitoring = () => {
                           setSliceIndeksKebeningan({
                             ...sliceIndeksKebeningan,
                             start:
-                              sliceIndeksKebeningan.start +
-                              sliceIndeksKebeningan.for,
+                              sliceIndeksKebeningan.start + 1,
                             finish:
-                              sliceIndeksKebeningan.finish +
-                              sliceIndeksKebeningan.for,
+                              sliceIndeksKebeningan.finish + 1,
                           });
                         }}
                       >

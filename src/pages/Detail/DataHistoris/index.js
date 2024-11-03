@@ -32,6 +32,7 @@ import Cookies from "js-cookie";
 import Dropdown from "@components/molecule/Dropdown";
 import { Dialog, Menu } from "@headlessui/react";
 import { BsFiletypeCsv } from "react-icons/bs";
+import CustomBarChart from "@components/molecule/Chart/CustomChart/CustomeBarChart";
 import DetailMap from "@components/molecule/Map/DetailMap";
 import Modal from "@components/molecule/Modal";
 import Windrose from "@components/molecule/Chart/Windrose";
@@ -336,23 +337,24 @@ const DataHistoris = () => {
           setDataTutupanAwanTinggi(res.data[0]);
         });
         getHistorisIndexKebeningan(lonLat.lat, lonLat.lon).then((res) =>
-          setDataIndexKebeningan(res)
+          setDataIndexKebeningan(res.data[0])
         );
         getHistorisArahMatahari(lonLat.lat, lonLat.lon).then((res) =>
-          setDataPergerakanMatahariLine({
-            data: [
-              {
-                name: "Pergerakan Matahari",
-                data: res.data[0].data.map((item, index) => ({
-                  x: res.categories[index],
-                  y: item,
-                })),
-              },
-            ],
-          })
+          setDataPergerakanMatahariLine(res.data[0])
+          // setDataPergerakanMatahariLine({
+          //   data: [
+          //     {
+          //       name: "Pergerakan Matahari",
+          //       data: res.data[0].data.map((item, index) => ({
+          //         x: res.categories[index],
+          //         y: item,
+          //       })),
+          //     },
+          //   ],
+          // })
         );
         getHistorisCurahHujan(lonLat.lat, lonLat.lon).then((res) =>
-          setDataCurahHujan(res)
+          setDataCurahHujan(res.data[0])
         );
         getHistorisSuhuRataRata(lonLat.lat, lonLat.lon).then((res) => {
           setDataSuhuRataRataLine(res);
@@ -377,13 +379,14 @@ const DataHistoris = () => {
         getDataTahunan(lonLat.lat, lonLat.lon, "potensi-tahunan").then(
           (res) => {
             setDataPotensiBar(res);
-            setDataPergerakanMatahariLine({
-              categories: res.categories,
-              data: res.data.map((item) => ({
-                name: "Pergerakan Matahari",
-                data: res.categories.map((_) => "-"),
-              })),
-            });
+            setDataPergerakanMatahariLine(res.data[0]);
+            // setDataPergerakanMatahariLine({
+              // categories: res.categories,
+              // data: res.data.map((item) => ({
+              //   name: "Pergerakan Matahari",
+              //   data: res.categories.map((_) => "-"),
+              // })),
+            // });
             setYears(res.categories);
           }
         );
@@ -400,7 +403,7 @@ const DataHistoris = () => {
         ).then((res) => setDataHistorisKecepatanAnginMaksimum(res));
         getDataTahunan(lonLat.lat, lonLat.lon, "curah-hujan-tahunan").then(
           (res) => {
-            setDataCurahHujan(res);
+            setDataCurahHujan(res.data[0]);
           }
         );
         getDataTahunan(
@@ -408,7 +411,7 @@ const DataHistoris = () => {
           lonLat.lon,
           "indeks-kebeningan-tahunan"
         ).then((res) => {
-          setDataIndexKebeningan(res);
+          setDataIndexKebeningan(res.data[0]);
         });
         getDataTahunan(lonLat.lat, lonLat.lon, "temperature-tahunan").then(
           (res) => {
@@ -778,8 +781,36 @@ const DataHistoris = () => {
             // dataTutupanAwanRendah.data[index]?.toFixed(1)
             Math.round(dataTutupanAwanRendah.data[index])
           ),
-          border: false,
+          border: true,
         },
+        {
+          id: 10,
+          name: "Sudut Optimum Kemiringan Panel Surya",
+          data: months.map((year, index) =>
+            parseFloat(dataPergerakanMatahariLine.data[index])?.toFixed(1)
+          ),
+          border: true,
+        },
+        {
+          id: 11,
+          name: "Curah Hujan (mm)",
+          // data: dataCurahHujanBar[tableDataOption]?.data[0]?.data?.map((item) =>
+          //   parseFloat(parseFloat(item).toFixed(1))
+          // ),
+          data: months.map((year, index) =>
+            parseFloat(dataCurahHujanBar.data[index])?.toFixed(1)
+          ),
+          border: true,
+        },
+        {
+          id: 12,
+          name: "Indeks Kebeningan",
+          data: months.map((year, index) =>
+            parseFloat(dataIndexKebeninganLine.data[index])
+          ),
+          border: true,
+        },
+        
       ]);
     } else if (
       dataSuhuRataRataLine &&
@@ -871,6 +902,33 @@ const DataHistoris = () => {
           data: years.map((year, index) =>
             // parseFloat(dataTutupanAwanRendah.data[index])
             Math.round(dataTutupanAwanRendah.data[index])
+          ),
+          border: true,
+        },
+        {
+          id: 10,
+          name: "Sudut Optimum Kemiringan Panel Surya",
+          data: years.map((year, index) =>
+            Math.round(dataPergerakanMatahariLine.data[index])
+          ),
+          border: true,
+        },
+        {
+          id: 11,
+          name: "Curah Hujan (mm)",
+          // data: dataCurahHujanBar[tableDataOption]?.data[0]?.data?.map((item) =>
+          //   parseFloat(parseFloat(item).toFixed(1))
+          // ),
+          data: months.map((year, index) =>
+            parseFloat(dataCurahHujanBar.data[index])?.toFixed(1)
+          ),
+          border: true,
+        },
+        {
+          id: 12,
+          name: "Indeks Kebeningan",
+          data: years.map((year, index) =>
+            parseFloat(dataIndexKebeninganLine.data[index])
           ),
           border: false,
         },
@@ -1741,8 +1799,8 @@ const DataHistoris = () => {
                   }}
                   colors={["#FFA537", "rgba(249, 115, 22, 1)"]}
                   yaxis={{
-                    max: 7,
-                    tickAmount: 14,
+                    // max: 7,
+                    tickAmount: 10,
                   }}
                 />
                 {isTahunan === "year" && (
@@ -1781,7 +1839,7 @@ const DataHistoris = () => {
                       item.border ? "border-b-2 border-[#D9D9D9]" : ""
                     }
             ${
-              item.id === 4 || item.id === 6
+              item.id === 4 || item.id === 5 || item.id === 6 || item.id === 10 || item.id === 11 || item.id === 12
                 ? "h-[150px] flex items-center"
                 : ""
             }
@@ -1820,7 +1878,7 @@ const DataHistoris = () => {
                     )}
 
                     {/* Chart */}
-                    {item.id === 4 || item.id === 6 ? (
+                    {item.id === 4 || item.id === 5 || item.id === 6 || item.id === 10 || item.id === 12 ? (
                       <div
                         className="absolute w-[79.5%]  top-0 right-[3%]"
                         style={{
@@ -1847,7 +1905,7 @@ const DataHistoris = () => {
                                 )
                               : item.data
                           }
-                          colors={item.id === 4 ? "#DD2000" : "#1DB5DB"}
+                          colors={item.id === 4 ? "#DD2000" : item.id === 10 ? "rgb(250, 204, 21)" : "#1DB5DB"}
                         />
                       </div>
                     ) : null}
@@ -1921,19 +1979,33 @@ const DataHistoris = () => {
                           <div className="flex flex-col w-[40px] text-center gap-1 justify-center pb-4 pt-2 items-center text-sm font-medium">
                             {item2 ? parseFloat(item2)?.toFixed(1) : 0}
                           </div>
-                        ) : item.id === 4 ? null : item.id === 5 ? (
-                          <div className="flex flex-col gap-1 justify-center items-center text-sm font-bold">
-                            {item2 ? parseFloat(item2)?.toFixed(1) : 0}
-                          </div>
-                        ) : item.id === 6 ? null : item.id === 7 ||
+                        ) : item.id === 4 ? null
+                        : item.id === 5 ? null
+                        // (
+                        //   <div className="flex flex-col gap-1 justify-center items-center text-sm font-bold">
+                        //     {item2 ? parseFloat(item2)?.toFixed(1) : 0}
+                        //   </div>
+                        // ) 
+                        : item.id === 6 ? null : item.id === 7 ||
                           item.id === 8 ||
                           item.id === 9 ? (
                           <div className="gap-1 w-[30px] text-center text-sm font-bold">
                             {/* {item2 ? parseFloat(item2)?.toFixed(1) : 0} */}
                             {item2 ? item2 : 0}
                           </div>
+                        ) : item.id === 10 || item.id === 12 ? null 
+                        : item.id === 11 ? (
+                          <div className="flex flex-col w-[20px] h-full justify-center items-center text-sm font-bold">
+                            <CustomBarChart
+                              width="100%"
+                              data={item2}
+                              height={"100"}
+                              maxCount={5}
+                            />
+                            <p className="text-xs text-black/60">{item2}</p>
+                          </div>
                         ) : (
-                          item2
+                           item2
                         )}
                       </div>
                     ))}
@@ -1943,7 +2015,7 @@ const DataHistoris = () => {
             )}
 
             {/* pergerakan matahari */}
-            <div
+            {/* <div
               id="card-historis-panel-surya"
               className={`shadow-lg rounded w-full bg-[#EBFFE4] box-shadow p-4 ${
                 isTahunan === "year" ? "hidden" : "inline-block"
@@ -1979,17 +2051,13 @@ const DataHistoris = () => {
                   widthBorder={3}
                 />
               </div>
-            </div>
+            </div> */}
 
-            <div
-              className={`${
-                isTahunan === "month"
-                  ? "grid-cols-1 md:grid-cols-2 col-span-2 "
-                  : "grid-cols-1 md:grid-cols-2 col-span-3"
-              } grid gap-4`}
-            >
+            {/* <div
+              className={`w-full col-span-3`}
+            > */}
               {/* Curah Hujan */}
-              <div
+              {/* <div
                 id="card-historis-curah-hujan"
                 className="shadow-lg rounded w-full bg-[#EBFFE4] box-shadow p-4"
               >
@@ -2012,8 +2080,8 @@ const DataHistoris = () => {
                     showGrid
                     yaxis={
                       isTahunan === "month" && {
-                        max: 450,
-                        tickAmount: 18,
+                        // max: 450,
+                        tickAmount: 15,
                       }
                     }
                   />
@@ -2031,10 +2099,10 @@ const DataHistoris = () => {
                     </div>
                   )}
                 </div>
-              </div>
+              </div> */}
 
               {/* index kebeningan */}
-              <div
+              {/* <div
                 id="card-historis-index-kebeningan"
                 className="shadow-lg rounded w-full bg-[#EBFFE4] box-shadow p-4"
               >
@@ -2068,8 +2136,8 @@ const DataHistoris = () => {
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
+              </div> */}
+            {/* </div> */}
           </div>
         </div>
       </div>

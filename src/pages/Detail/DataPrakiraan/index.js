@@ -48,6 +48,7 @@ const DataPrakiraan = () => {
   const [subscription, setSubscription] = useState(true);
   const [listPayment, setListPayment] = useState([]);
   const [dataPayment, setDataPayment] = useState(null);
+  const [isTahunan, setIsTahunan] = useState("default");
 
   const [months] = useState([
     "Jan",
@@ -120,7 +121,14 @@ const DataPrakiraan = () => {
           payment.status === "Success"
         ) {
           const dateParts = payment.updated_at.split(" ")[0].split("-");
-          const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+          const hourParts = payment.updated_at.split(" ")[1].split(":");
+
+          // const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+          if(isTahunan === "default") {
+            var formattedDate = `${dateParts[2]} ${months.at(dateParts[1]-1)} ${dateParts[0]} ${hourParts[0]}:${hourParts[1]}`;
+          } else {
+            var formattedDate = `${months.at(dateParts[1]-1)} ${dateParts[0]}`;
+          }
 
           setSubscription(true);
           setDataPayment({
@@ -133,7 +141,7 @@ const DataPrakiraan = () => {
         }
       }
     }
-  }, [listPayment, lonLat]);
+  }, [listPayment, lonLat, isTahunan]);
 
   // check if already have user and subscription
   useEffect(() => {
@@ -194,8 +202,8 @@ const DataPrakiraan = () => {
 
   const [slicePotensi, setSlicePotensi] = useState({
     start: 0,
-    finish: 4,
-    for: 4,
+    finish: 7,
+    for: 7,
   });
 
   const resetSlicePotensi = () => {
@@ -214,8 +222,8 @@ const DataPrakiraan = () => {
     } else {
       setSlicePotensi({
         start: 0,
-        finish: 4,
-        for: 4,
+        finish: 7,
+        for: 7,
       });
     }
   };
@@ -248,8 +256,8 @@ const DataPrakiraan = () => {
   const [dataCurahHujan, setDataCurahHujan] = useState([]);
   const [sliceIndeksKebeningan, setSliceIndeksKebeningan] = useState({
     start: 0,
-    finish: 4,
-    for: 4,
+    finish: 7,
+    for: 7,
   });
 
   const resetSliceIndeksKebeningan = () => {
@@ -268,8 +276,8 @@ const DataPrakiraan = () => {
     } else {
       setSliceIndeksKebeningan({
         start: 0,
-        finish: 4,
-        for: 4,
+        finish: 7,
+        for: 7,
       });
     }
   };
@@ -290,8 +298,8 @@ const DataPrakiraan = () => {
   const [tableDataBulanan, setTableDataBulanan] = useState([]);
   const [sliceIndex, setSliceIndex] = useState({
     start: 0,
-    end: 12,
-    for: 12,
+    end: 24,
+    for: 24,
   });
 
   const resetSliceIndex = () => {
@@ -310,8 +318,8 @@ const DataPrakiraan = () => {
     } else {
       setSliceIndex({
         start: 0,
-        end: 12,
-        for: 12,
+        end: 24,
+        for: 24,
       });
     }
   };
@@ -333,8 +341,6 @@ const DataPrakiraan = () => {
     "bulan-6",
     "bulan-7",
   ]);
-
-  const [isTahunan, setIsTahunan] = useState("default");
 
   // select option table data
   const [tableDataOption, setTableDataOption] = useState(0);
@@ -480,6 +486,18 @@ const DataPrakiraan = () => {
           id: 2,
           name: "Suhu Maksimum (°C)",
           data: dataBulananSuhu?.data[0].data,
+          border: true,
+        },
+        {
+          id: 3,
+          name: "Potensi Energi Surya",
+          data: dataBulananGhi?.data[0].data,
+          border: true,
+        },
+        {
+          id: 4,
+          name: "Indeks Kebeningan",
+          data: dataBulananIndex?.data[0].data,
           border: true,
         },
       ]);
@@ -1164,7 +1182,7 @@ const DataPrakiraan = () => {
             </div>
           </div>
 
-          {isTahunan === "default" ? (
+          {isTahunan === "default" && (
             <div className="bg-[#EBFFE4] box-shadow rounded p-2 mt-4">
               <p className="text-center text-xl ">
                 Global Horizontal Irradiance (GHI)
@@ -1284,8 +1302,8 @@ const DataPrakiraan = () => {
                           onClick={() => {
                             setSlicePotensi({
                               ...slicePotensi,
-                              start: slicePotensi.start - slicePotensi.for,
-                              finish: slicePotensi.finish - slicePotensi.for,
+                              start: slicePotensi.start - 1,
+                              finish: slicePotensi.finish - 1,
                             });
                           }}
                         >
@@ -1306,8 +1324,8 @@ const DataPrakiraan = () => {
                           onClick={() => {
                             setSlicePotensi({
                               ...slicePotensi,
-                              start: slicePotensi.start + slicePotensi.for,
-                              finish: slicePotensi.finish + slicePotensi.for,
+                              start: slicePotensi.start + 1,
+                              finish: slicePotensi.finish + 1,
                             });
                           }}
                         >
@@ -1416,7 +1434,8 @@ const DataPrakiraan = () => {
                 ))}
               </div>
             </div>
-          ) : (
+          )}
+          {/* : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-[#EBFFE4] box-shadow rounded p-2 mt-4">
                 <p className="text-center text-base font-medium ">
@@ -1434,8 +1453,8 @@ const DataPrakiraan = () => {
                     colors={["#FFA537", "rgba(249, 115, 22, 1)"]}
                     height={"300"}
                     yaxis={{
-                      max: 7,
-                      tickAmount: 14,
+                      // max: 7,
+                      tickAmount: 10,
                     }}
                   />
                 </div>
@@ -1458,7 +1477,7 @@ const DataPrakiraan = () => {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Table Prakiraan */}
           {tableData.length === 0 ? (
@@ -1610,7 +1629,7 @@ const DataPrakiraan = () => {
                               {item2 ? item2 : 0}
                             </div>
                           ) : item.id === 10 ? (
-                            <div className="flex flex-col w-[60px] h-full justify-center items-center text-sm font-bold">
+                            <div className="flex flex-col w-[20px] h-full justify-center items-center text-sm font-bold">
                               <CustomBarChart
                                 width="100%"
                                 data={item2}
@@ -1632,7 +1651,7 @@ const DataPrakiraan = () => {
                       className={`flex justify-between pb-2 relative ${
                         item.border ? "border-b-2 border-[#D9D9D9]" : ""
                       }
-                  ${item.id === 2 ? "h-[150px] flex items-center" : ""}
+                  ${item.id === 2 || item.id === 3 || item.id === 4 ? "h-[150px] flex items-center" : ""}
                   `}
                     >
                       {index === 0 && (
@@ -1667,7 +1686,7 @@ const DataPrakiraan = () => {
                       )}
 
                       {/* Chart */}
-                      {item.id === 2 ? (
+                      {item.id === 2 || item.id === 3 || item.id === 4 ? (
                         <div
                           className="absolute w-[79.5%]  top-0 right-[3%]"
                           style={{
@@ -1684,7 +1703,7 @@ const DataPrakiraan = () => {
                                   )
                                 : item.data
                             }
-                            colors={"#DD2000"}
+                            colors={item.id === 2 ? "#DD2000" : item.id === 3 ? "rgb(250, 204, 21)" : "#1DB5DB"}
                           />
                         </div>
                       ) : null}
@@ -1832,11 +1851,9 @@ const DataPrakiraan = () => {
                             setSliceIndeksKebeningan({
                               ...sliceIndeksKebeningan,
                               start:
-                                sliceIndeksKebeningan.start -
-                                sliceIndeksKebeningan.for,
+                                sliceIndeksKebeningan.start - 1,
                               finish:
-                                sliceIndeksKebeningan.finish -
-                                sliceIndeksKebeningan.for,
+                                sliceIndeksKebeningan.finish - 1,
                             });
                           }}
                         >
@@ -1861,11 +1878,9 @@ const DataPrakiraan = () => {
                             setSliceIndeksKebeningan({
                               ...sliceIndeksKebeningan,
                               start:
-                                sliceIndeksKebeningan.start +
-                                sliceIndeksKebeningan.for,
+                                sliceIndeksKebeningan.start + 1,
                               finish:
-                                sliceIndeksKebeningan.finish +
-                                sliceIndeksKebeningan.for,
+                                sliceIndeksKebeningan.finish + 1,
                             });
                           }}
                         >

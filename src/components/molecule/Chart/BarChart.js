@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 
 const BarChart = ({
@@ -21,6 +21,19 @@ const BarChart = ({
   yaxis,
 }) => {
   const series = data;
+
+  const [maxNumber, setMaxNumber] = useState(5);
+
+  const getMaxNumber = () => {
+    // Get max value from data and round it up
+    setMaxNumber(Math.ceil(Math.max(...data[0].data)));
+  }
+
+  useEffect(() => {
+    if(data[0].data && data[0].data.length > 0) {
+      getMaxNumber();
+    }
+  }, [data]);
 
   const options = {
     chart: {
@@ -69,7 +82,7 @@ const BarChart = ({
     },
     yaxis: {
       show: showYAxis,
-      max: maxCount,
+      max: maxCount ? maxCount : maxNumber,
       title: {
         text: title,
         style: styleTitle,
