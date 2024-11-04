@@ -31,9 +31,26 @@ const Payment = () => {
     region: "",
   });
 
+  const [activeTab, setActiveTab] = useState(0);
+
+  const tabs = [
+    { id: 0, title: 'Basic'},
+    { id: 1, title: 'Profesional'},
+    { id: 2, title: 'Enterprise'},
+    { id: 3, title: 'Combo'},
+  ];
+
+  const [activeSubTab, setActiveSubTab] = useState(0);
+
+  const subTabs = [
+    { id: 0, title: 'Monthly'},
+    { id: 1, title: 'Annually'},
+  ];
+
   const [packageAvailable, setPackageAvailable] = useState([
     {
       id: "monthly-forecast",
+      category: "basic",
       name: ["Basic", "Monthly", "30 Days"],
       type: "Forecast",
       price: "1.500.000",
@@ -48,6 +65,7 @@ const Payment = () => {
     },
     {
       id: "annual-forecast",
+      category: "basic",
       name: ["Basic", "Annual", "1 Year Calendar"],
       type: "Forecast",
       price: "16.000.000",
@@ -62,6 +80,7 @@ const Payment = () => {
     },
     {
       id: "monthly-monitoring",
+      category: "basic",
       name: ["Basic", "Monthly", "30 Days"],
       type: "Monitoring",
       price: "1.500.000",
@@ -75,7 +94,8 @@ const Payment = () => {
       loading: false,
     },
     {
-      id: "forecast-monitoring",
+      id: "annual-monitoring",
+      category: "basic",
       name: ["Basic", "Annual", "1 Year Calendar"],
       type: "Monitoring",
       price: "16.000.000",
@@ -85,6 +105,66 @@ const Payment = () => {
         "Akses data hingga 30 hari yang lalu",
         "Akses data dalam format tabular (csv) dan format pdf",
       ],
+      disable: false,
+      loding: false,
+    },
+    {
+      id: "profesional-forecast",
+      category: "profesional",
+      name: ["Profesional"],
+      type: "Forecast",
+      price: "25.000", //gatau
+      duration: 10, //gatau
+      description: [
+        "Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)",
+        "Akses data per jam hingga 7 hari ke depan",
+        "Akses data dalam format tabular (csv) dan format pdf",
+      ], // ini gatau juga
+      disable: false,
+      loding: false,
+    },
+    {
+      id: "profesional-monitoring",
+      category: "profesional",
+      name: ["Profesional"],
+      type: "Monitoring",
+      price: "25.000", //gatau
+      duration: 90, //gatau
+      description: [
+        "Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)",
+        "Akses data per jam hingga 7 hari ke depan",
+        "Akses data dalam format tabular (csv) dan format pdf",
+      ], // ini gatau juga
+      disable: false,
+      loding: false,
+    },
+    {
+      id: "enterprise-forecast",
+      category: "enterprise",
+      name: ["Enterprise"],
+      type: "Forecast",
+      price: "40.000", //gatau
+      duration: 14, //gatau
+      description: [
+        "Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)",
+        "Akses data per jam hingga 7 hari ke depan",
+        "Akses data dalam format tabular (csv) dan format pdf",
+      ], // ini gatau juga
+      disable: false,
+      loding: false,
+    },
+    {
+      id: "combo",
+      category: "combo",
+      name: ["Combo"],
+      type: "Forecast",
+      price: "16.000.000", //gatau
+      duration: 14, //gatau
+      description: [
+        "Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)",
+        "Akses data per jam hingga 7 hari ke depan",
+        "Akses data dalam format tabular (csv) dan format pdf",
+      ], // ini gatau juga
       disable: false,
       loding: false,
     },
@@ -205,6 +285,101 @@ const Payment = () => {
     }
   };
 
+  const packageCard = (pac, index) => (
+    <div
+      key={index}
+      id={`card-sub-${pac.id}`}
+      className={`bg-white lg:mb-0 h-[40vh] lg:h-5/6 w-full relative ${
+        pac.disable && "opacity-50 cursor-not-allowed"
+      }`}
+    >
+      <div className="border-r h-[80%] top-10 absolute" />
+      <div className="flex text-slate-600 justify-evenly h-full items-center flex-col">
+        <center>
+          <p
+            className="font-bold text-xl text-[#1F8A70]"
+            id={`text-sub-title-${pac.id}`}
+          >
+            {pac.type}
+          </p>
+          {pac.name.map((name, i) => (
+            <p
+              className="font-bold text-sm p-0"
+              id={`text-sub-title-${pac.id}`}
+            >
+              {i == 2 ? `(${name})` : `${name}`}
+            </p>
+          ))}
+        </center>
+
+        <div className="flex flex-col items-center w-full">
+          <p
+            className="font-bold text-2xl text-[#1F8A70]"
+            id={`text-sub-price-${pac.id}`}
+          >
+            IDR. {pac.price}
+          </p>
+        </div>
+        <div className="flex flex-col gap-2 items-center text-xs font-semibold">
+          <p
+            className="font-normal"
+            id={`text-sub-location-${pac.id}`}
+          >
+            {lonLat.region}
+          </p>
+          <div>
+            <p className="">
+              Longitude: {parseFloat(lonLat.lon).toFixed(1)}°
+            </p>
+            <p className="">
+              Langitude: {parseFloat(lonLat.lat).toFixed(1)}°
+            </p>
+          </div>
+        </div>
+        <div className="flex justify-start w-full pl-[10%] pr-5 flex-col gap-2">
+          {pac.description.map((desc, i) => (
+            <div
+              key={i}
+              className={`flex gap-2 items-center justify-start w-full`}
+              id={`text-sub-desc${i + 1}-${pac.id}`}
+            >
+              <div>
+                <FiCheckCircle className="text-[#1F8A70]" />{" "}
+              </div>
+              <p
+                className={`text-xs ${
+                  i == 1 ? "font-bold" : "font-medium"
+                }`}
+              >
+                {desc}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <button
+          className={`border border-green-600 px-4 py-1 duration-150 w-28 flex justify-center items-center ${
+            !pac.disable
+              ? "hover:bg-[#1F8A70] hover:text-white"
+              : "cursor-not-allowed"
+          }`}
+          disabled={pac.disable || pac.loading}
+          onClick={() => {
+            // handleSubmit(pac.duration);
+            handleSubmitPayment(pac.duration, index);
+          }}
+          id={`btn-sub-${pac.id}`}
+        >
+          {pac.loading ? (
+            <AiOutlineLoading3Quarters className="animate-spin" />
+          ) : (
+            "Berlangganan"
+          )}
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div>
       <div className="py-4 px-7">
@@ -214,12 +389,109 @@ const Payment = () => {
           telah dipilih.
         </p>
       </div>
-      <div className="bg-[#73A9AD] my-4 mx-10 rounded-[17px] h-auto lg:h-[75vh]">
+      <div className="bg-[#73A9AD] my-4 mx-10 rounded-[17px] h-auto lg:h-[80vh]">
         <div className="h-full">
           <div className="flex justify-center items-center py-6">
             <p className="text-white text-4xl font-bold">Pilih Paket</p>
           </div>
-          <div className="mt-8 pb-8 lg:pb-0 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mx-[10%] h-full lg:h-[55vh] items-center">
+
+          <div className="w-5/6 mx-auto">
+          {/* Tabs Header */}
+          <div className="flex">
+            {tabs.map((tab, index) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(index)}
+                className={`flex-1 py-2 px-8 text-center font-medium transition-colors duration-300 border border-emerald-800 ${
+                  activeTab === index
+                    ? 'text-slate-50 border-2 border-emerald-800 bg-emerald-900'
+                    : 'text-gray-500'
+                }`}
+              >
+                {tab.title}
+              </button>
+            ))}
+          </div>
+
+          {/* Tabs Content */}
+          <div className="pt-4" >
+
+            {/* tab 1 */}
+            {activeTab === 0 &&
+              <>
+                <div className="flex">
+                  {subTabs.map((tab, index) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveSubTab(index)}
+                      className={`py-2 px-12 text-left font-medium transition-colors duration-300 border border-emerald-700 ${
+                        activeSubTab === index
+                          ? 'text-slate-50 border-x-2 border-t-2 border-b-1 border-emerald-800 bg-emerald-800'
+                          : 'text-gray-500'
+                      }`}
+                    >
+                      {tab.title}
+                    </button>
+                  ))}
+                </div>
+
+                {activeSubTab === 0 ?
+                  <div className="pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-4 h-full w-full lg:h-[55vh] items-center border border-emerald-700">
+                    {packageAvailable.map((pac, index) => {
+                      if  (pac.category === "basic" && pac.duration === 30) {
+                        return packageCard(pac, index);
+                      }
+                    })}
+                  </div>
+                :
+                  <div className="pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-4 h-full w-full lg:h-[55vh] items-center border border-emerald-700">
+                    {packageAvailable.map((pac, index) => {
+                      if  (pac.category === "basic" && pac.duration === 365) {
+                        return packageCard(pac, index);
+                      }
+                    })}
+                  </div>
+                }
+              </>
+            }
+
+            {/* tab 2 */}
+            {activeTab === 1 &&
+              <div className="mt-2 pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-4 h-full w-full lg:h-[55vh] items-center border border-emerald-700">
+                {packageAvailable.map((pac, index) => {
+                  if  (pac.category === "profesional") {
+                    return packageCard(pac, index);
+                  }
+                })}
+              </div>
+            }
+
+            {/* tab 3 */}
+            {activeTab === 2 &&
+              <div className="mt-2 pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-4 h-full w-full lg:h-[55vh] items-center border border-emerald-700">
+                {packageAvailable.map((pac, index) => {
+                  if (pac.category === "enterprise") {
+                    return packageCard(pac, index);
+                  }
+                })}
+              </div>
+            }
+
+            {/* tab 4 */}
+            {activeTab === 3 &&
+              <div className="mt-2 pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-4 h-full w-full lg:h-[55vh] items-center border border-emerald-700">
+                {packageAvailable.map((pac, index) => {
+                  if  (pac.category === "combo") {
+                    return packageCard(pac, index);
+                  }
+                })}
+              </div>
+            }
+
+          </div>
+        </div>
+          
+          {/* <div className="mt-8 pb-8 lg:pb-0 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mx-[10%] h-full lg:h-[55vh] items-center">
             {packageAvailable.map((pac, index) => (
               <div
                 key={index}
@@ -314,7 +586,7 @@ const Payment = () => {
                 </div>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
