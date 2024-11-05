@@ -887,10 +887,10 @@ const MapLayout = ({
             )}
             <div className="flex pt-2 font-semibold justify-between">
               <span className="m-0 p-0">
-                Longitude : {parseFloat(selectCoord?.Lon.toFixed(1))}
+                Longitude : {parseFloat(selectCoord?.Lon.toFixed(5))}
               </span>
               <span className="m-0 pb-1">
-                Latitude : {parseFloat(selectCoord?.Lat.toFixed(1))}
+                Latitude : {parseFloat(selectCoord?.Lat.toFixed(5))}
               </span>
             </div>
           </Popup>
