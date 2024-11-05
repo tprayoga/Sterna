@@ -978,7 +978,7 @@ const DataMonitoring = () => {
                       }`}
                     >
                       {item.id === 2 ? (
-                        <div className="flex w-[50px] gap-1 pt-4 items-center font-bold text-base">
+                        <div className="flex flex-col w-full gap-1 pt-4 items-center font-bold text-base">
                           <div
                             style={{
                               rotate: `${

@@ -1949,7 +1949,7 @@ const DataHistoris = () => {
                         }`}
                       >
                         {item.id === 2 ? (
-                          <div className="flex gap-1 w-[50px] justify-center pb-4 pt-2 items-center font-bold text-base">
+                          <div className="flex flex-col gap-1 w-[50px] justify-center pb-4 pt-2 items-center font-bold text-base">
                             <div className="rotate-[180deg]">
                               <div
                                 style={{
