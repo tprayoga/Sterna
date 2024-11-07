@@ -242,6 +242,8 @@ const DataPrakiraan = () => {
 
   // SUHU
   const [dataSuhu, setDataSuhu] = useState([]);
+  const [dataSuhuMaksimum, setDataSuhuMaksimum] = useState([]);
+  
   // TUTUPAN AWAN
   const [dataTutupanAwan, setDataTutupanAwan] = useState([]);
 
@@ -357,6 +359,7 @@ const DataPrakiraan = () => {
       dataArahAngin.length > 0 &&
       dataKecepatanAngin.length > 0 &&
       dataSuhu.length > 0 &&
+      dataSuhuMaksimum.length > 0 &&
       // dataTutupanAwan.length > 0 &&
       dataCurahHujan.length > 0 &&
       dataTutupanAwanTotal.length > 0 &&
@@ -405,6 +408,14 @@ const DataPrakiraan = () => {
         },
         {
           id: 4,
+          name: "Suhu Maksimum (°C)",
+          data: dataSuhu[tableDataOption]?.data[0]?.data?.map((item) =>
+            parseFloat(parseFloat(item).toFixed(1))
+          ),
+          border: false,
+        },
+        {
+          id: 5,
           name: "Suhu (°C)",
           data: dataSuhu[tableDataOption]?.data[0]?.data?.map((item) =>
             parseFloat(parseFloat(item).toFixed(1))
@@ -737,6 +748,15 @@ const DataPrakiraan = () => {
         lonLat.utc,
         outputDate
       ).then((res) => setDataCurahHujan(res.slice(0, dataPayment?.paket)));
+      getDailyPrakiraan(
+        "temperature-maksimum-harian",
+        lonLat.lon,
+        lonLat.lat,
+        parseInt(currentTime),
+        "Suhu Maksimum",
+        lonLat.utc,
+        outputDate
+      ).then((res) => setDataSuhuMaksimum(res.slice(0, dataPayment?.paket)));
     }
   }, [lonLat, dataPayment]);
 
@@ -1497,7 +1517,7 @@ const DataPrakiraan = () => {
                         item.border ? "border-b-2 border-[#D9D9D9]" : ""
                       }
             ${
-              item.id === 4 || item.id === 6
+              item.id === 4 || item.id === 5 || item.id === 6
                 ? "h-[150px] flex items-center"
                 : ""
             }
@@ -1536,7 +1556,7 @@ const DataPrakiraan = () => {
                       )}
 
                       {/* Chart */}
-                      {item.id === 4 || item.id === 6 ? (
+                      {item.id === 4 || item.id === 5 || item.id === 6 ? (
                         <div
                           className="absolute w-[79.5%]  top-0 right-[3%]"
                           style={{
@@ -1571,7 +1591,7 @@ const DataPrakiraan = () => {
                         className={`w-[15%] text-xs font-bold flex items-center pl-4 ${
                           index === 0 ? "bg-[#00AF50] py-2" : ""
                         }  ${
-                          item.id === 4 || item.id === 6 || item.id === 2
+                          item.id === 5 || item.id === 6 || item.id === 2
                             ? "cursor-pointer hover:opacity-70 duration-150"
                             : ""
                         }}`}
@@ -1617,11 +1637,7 @@ const DataPrakiraan = () => {
                             <div className="flex flex-col w-[40px] gap-1 justify-center py-2 items-center text-sm font-medium">
                               {item2 ? parseFloat(item2)?.toFixed(1) : 0}
                             </div>
-                          ) : item.id === 4 ? null : item.id === 5 ? (
-                            <div className="flex flex-col gap-1 justify-center items-center text-sm font-bold">
-                              {item2 ? parseFloat(item2)?.toFixed(1) : 0}
-                            </div>
-                          ) : item.id === 6 ? null : item.id === 7 ||
+                          ) : item.id === 4 || item.id === 5 ? null : item.id === 6 ? null : item.id === 7 ||
                             item.id === 8 ||
                             item.id === 9 ? (
                             <div className="text-center w-[30px] text-sm font-bold">
