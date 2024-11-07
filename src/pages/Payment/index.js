@@ -364,7 +364,20 @@ const Payment = () => {
             disabled={pac.disable || pac.loading}
             onClick={() => {
               // handleSubmit(pac.duration);
-              handleSubmitPayment(pac.duration, index);
+              // handleSubmitPayment(pac.duration, index);
+              navigate("/payment-process",
+                {
+                  state: { // send data using state
+                    pac: pac,
+                    location: {
+                      lat: lonLat.lat,
+                      lon: lonLat.lon,
+                      province: lonLat.province,
+                      region: lonLat.region,
+                    },
+                  }
+                }
+              );
             }}
             id={`btn-sub-${pac.id}`}
           >
