@@ -558,8 +558,8 @@ const MapLayout = ({
   // ];
 
   const bounds = [
-    [-11.2585669, 94.6530261576],
-    [6.4582086834, 141.45385176],
+    [-11.7685669, 94.3630261576],
+    [7.1982087834, 141.52185176],
   ];
 
   function SetBounds({ coords }) {
@@ -887,10 +887,10 @@ const MapLayout = ({
             )}
             <div className="flex pt-2 font-semibold justify-between">
               <span className="m-0 p-0">
-                Longitude : {parseFloat(selectCoord?.Lon.toFixed(1))}
+                Longitude : {parseFloat(selectCoord?.Lon.toFixed(5))}
               </span>
               <span className="m-0 pb-1">
-                Latitude : {parseFloat(selectCoord?.Lat.toFixed(1))}
+                Latitude : {parseFloat(selectCoord?.Lat.toFixed(5))}
               </span>
             </div>
           </Popup>

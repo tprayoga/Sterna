@@ -18,6 +18,7 @@ import Beranda from "@pages/Beranda";
 import DataMonitoring from "@pages/Detail/DataMonitoring";
 import ListSubscription from "@pages/ListSubscription/index";
 import Profile from "@pages/Profile/index";
+import PaymentProcess from "@pages/PaymentProcess";
 
 const routes = [
   {
@@ -119,6 +120,11 @@ const routes = [
     id: 20,
     path: "/beranda",
     component: Beranda,
+  },
+  {
+    id: 21,
+    path: "/payment-process",
+    component: PaymentProcess,
   },
 ];
 

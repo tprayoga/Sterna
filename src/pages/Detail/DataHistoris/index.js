@@ -733,17 +733,17 @@ const DataHistoris = () => {
         },
         {
           id: 4,
-          name: "Suhu (°C)",
+          name: "Suhu Maksimum (°C)",
           data: months.map((month, index) =>
-            parseFloat(dataSuhuRataRataLine.data[0].data[index]?.toFixed(1))
+            parseFloat(dataSuhuMaximumLine.data[0].data[index])?.toFixed(1)
           ),
           border: false,
         },
         {
           id: 5,
-          name: "Suhu Maksimum (°C)",
+          name: "Suhu (°C)",
           data: months.map((month, index) =>
-            parseFloat(dataSuhuMaximumLine.data[0].data[index])?.toFixed(1)
+            parseFloat(dataSuhuRataRataLine.data[0].data[index]?.toFixed(1))
           ),
           border: true,
         },
@@ -855,17 +855,17 @@ const DataHistoris = () => {
         },
         {
           id: 4,
-          name: "Suhu (°C)",
+          name: "Suhu Maksimum (°C)",
           data: years.map((year, index) =>
-            parseFloat(dataSuhuRataRataLine.data[0].data[index])
+            parseFloat(dataSuhuMaximumLine.data[0].data[index])
           ),
           border: false,
         },
         {
           id: 5,
-          name: "Suhu Maksimum (°C)",
+          name: "Suhu (°C)",
           data: years.map((year, index) =>
-            parseFloat(dataSuhuMaximumLine.data[0].data[index])
+            parseFloat(dataSuhuRataRataLine.data[0].data[index])
           ),
           border: true,
         },
@@ -1922,14 +1922,14 @@ const DataHistoris = () => {
                       className={`w-[15%] text-xs pt-2 font-bold pl-4 ${
                         index === 0 ? "bg-[#00AF50] py-2" : ""
                       }  ${
-                        item.id === 4 || item.id === 6 || item.id === 2
+                        item.id === 5 || item.id === 6 || item.id === 2
                           ? "cursor-pointer hover:opacity-70 duration-150"
                           : ""
                       }}`}
                       onClick={() => {
                         if (item.id === 2) {
                           setOpenModalAngin(true);
-                        } else if (item.id === 4) {
+                        } else if (item.id === 5) {
                           setOpenModalSuhu(true);
                         } else if (item.id === 6) {
                           setOpenModalAwan(true);
@@ -1949,7 +1949,7 @@ const DataHistoris = () => {
                         }`}
                       >
                         {item.id === 2 ? (
-                          <div className="flex gap-1 w-[50px] justify-center pb-4 pt-2 items-center font-bold text-base">
+                          <div className="flex flex-col gap-1 w-[50px] justify-center pb-4 pt-2 items-center font-bold text-base">
                             <div className="rotate-[180deg]">
                               <div
                                 style={{

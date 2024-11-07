@@ -403,16 +403,36 @@ const ListSubscription = () => {
                         
                         {/* Perpanjang */ }
                         {/* commentted for now */}
-                        {/* <div className="h-full flex mt-4 md:mt-0 md:flex-col md:justify-center gap-2 md:w-[100px] md:gap-2 ml-8">
+                        <div className="h-full flex mt-4 md:mt-0 md:flex-col md:justify-center gap-2 md:w-[100px] md:gap-2 ml-8">
                           <div className="flex items-center gap-2 md:flex-col text-xs text-slate-600">
                             <p className="font-medium text-slate-500">
                               Aksi
                             </p>
-                            <button>
+                            <button className="p-2 font-semibold bg-emerald-100 rounded-lg"
+                              onClick={() => {
+                                console.log(item)
+                                navigate("/payment-process",
+                                  {
+                                    state: { // send data using state
+                                      pac: {
+                                        duration: item.paket,
+                                      },
+                                      location: {
+                                        lat: item.lat,
+                                        lon: item.lon,
+                                        province: item.province,
+                                        region: item.region,
+                                      },
+                                    }
+                                  }
+                                )
+                                }
+                              }
+                            >
                               Perpanjang
                             </button>
                           </div>
-                        </div> */}
+                        </div>
                         </>
                         /* End Perpanjang */
                         }
