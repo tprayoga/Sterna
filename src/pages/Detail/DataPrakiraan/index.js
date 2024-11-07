@@ -409,7 +409,7 @@ const DataPrakiraan = () => {
         {
           id: 4,
           name: "Suhu Maksimum (°C)",
-          data: dataSuhu[tableDataOption]?.data[0]?.data?.map((item) =>
+          data: dataSuhuMaksimum[tableDataOption]?.data[0]?.data?.map((item) =>
             parseFloat(parseFloat(item).toFixed(1))
           ),
           border: false,
