@@ -208,6 +208,7 @@ const DataMonitoring = () => {
 
   // SUHU
   const [dataSuhu, setDataSuhu] = useState([]);
+  const [dataSuhuMaksimum, setDataSuhuMaksimum] = useState([]);
 
   // TUTUPAN AWAN NEW
   const [dataTutupanAwanTotal, setDataTutupanAwanTotal] = useState([]);
@@ -456,6 +457,15 @@ const DataMonitoring = () => {
         "Tutupan Awan Tinggi",
         "curah-hujan-harian"
       ).then((res) => setDataCurahHujan(res));
+      getPrakiraanMonitoring(
+        lonLat.lon,
+        lonLat.lat,
+        monthData.day,
+        monthData.month,
+        monthData.year,
+        "Temperature Maksimum",
+        "temperature-maksimum-harian"
+      ).then((res) => setDataSuhuMaksimum(res));
     }
   }, [lonLat]);
 
@@ -544,6 +554,14 @@ const DataMonitoring = () => {
         },
         {
           id: 4,
+          name: "Suhu Maksimum (°C)",
+          data: dataSuhuMaksimum[tableDataOption].data[0].data.map((item) =>
+            parseFloat(parseFloat(item).toFixed(1))
+          ),
+          border: false,
+        },
+        {
+          id: 5,
           name: "Suhu (°C)",
           data: dataSuhu[tableDataOption].data[0].data.map((item) =>
             parseFloat(parseFloat(item).toFixed(1))
@@ -891,7 +909,7 @@ const DataMonitoring = () => {
                     item.border ? "border-b-2 border-[#D9D9D9]" : ""
                   }
             ${
-              item.id === 4 || item.id === 6
+              item.id === 4  || item.id === 5 || item.id === 6
                 ? "h-[150px] flex items-center"
                 : ""
             }
@@ -928,7 +946,7 @@ const DataMonitoring = () => {
                     </div>
                   )}
 
-                  {item.id === 4 || item.id === 6 ? (
+                  {item.id === 4 || item.id === 5 || item.id === 6 ? (
                     <div
                       className="absolute w-[79.5%]  top-0 right-[3%]"
                       style={{
@@ -960,7 +978,7 @@ const DataMonitoring = () => {
                     className={`w-[15%] text-xs font-bold flex items-center pl-4 ${
                       index === 0 ? "bg-[#00AF50] py-2" : ""
                     }  ${
-                      item.id === 4 || item.id === 6 || item.id === 2
+                      item.id === 5 || item.id === 6 || item.id === 2
                         ? "cursor-pointer hover:opacity-70 duration-150"
                         : ""
                     }}`}
@@ -1006,11 +1024,8 @@ const DataMonitoring = () => {
                         <div className="flex flex-col w-[40px] gap-1 justify-center py-2 items-center text-sm font-medium">
                           {item2 ? parseFloat(item2)?.toFixed(1) : 0}
                         </div>
-                      ) : item.id === 4 ? null : item.id === 5 ? (
-                        <div className="flex flex-col gap-1 justify-center items-center text-sm font-bold">
-                          {item2 ? parseFloat(item2)?.toFixed(1) : 0}
-                        </div>
-                      ) : item.id === 6 ? null : item.id === 7 ||
+                      ) : item.id === 4 || item.id === 5 ? null :
+                        item.id === 6 ? null : item.id === 7 ||
                         item.id === 8 ||
                         item.id === 9 ? (
                         <div className="text-center w-[30px] text-sm font-bold">
