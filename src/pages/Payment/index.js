@@ -15,7 +15,7 @@ import { FaRegCheckCircle } from "react-icons/fa";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { MdOutlineLocationOn } from "react-icons/md"
+import { MdOutlineLocationOn } from "react-icons/md";
 
 const Payment = () => {
   const navigate = useNavigate();
@@ -25,6 +25,7 @@ const Payment = () => {
   const { locationParams } = useSelector((state) => state.location);
 
   const { successToast } = ToastHook();
+  const [plans, setPlans] = useState([]);
 
   const [lonLat, setLonLat] = useState({
     lon: 0,
@@ -35,17 +36,18 @@ const Payment = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs = [
-    { id: 0, title: 'Basic'},
-    { id: 1, title: 'Profesional'},
-    { id: 2, title: 'Enterprise'},
-    { id: 3, title: 'Combo'},
+    { id: 0, title: "Basic" },
+    { id: 1, title: "Profesional" },
+    { id: 2, title: "Enterprise" },
+    { id: 3, title: "Combo" },
   ];
 
-  const [activeSubTab, setActiveSubTab] = useState(0);
+  const [activeSubTab, setActiveSubTab] = useState(2);
 
   const subTabs = [
-    { id: 0, title: 'Monthly'},
-    { id: 1, title: 'Annually'},
+    { id: 2, title: "Weekly" },
+    { id: 0, title: "Monthly" },
+    { id: 1, title: "Annualy" },
   ];
 
   const [packageAvailable, setPackageAvailable] = useState([
@@ -56,11 +58,7 @@ const Payment = () => {
       type: "Forecast",
       price: "1.500.000",
       duration: 30,
-      description: [
-        "Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)",
-        "Akses data per jam hingga 7 hari ke depan",
-        "Akses data dalam format tabular (csv) dan format pdf",
-      ],
+      description: ["Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)", "Akses data per jam hingga 7 hari ke depan", "Akses data dalam format tabular (csv) dan format pdf"],
       disable: false,
       loding: false,
     },
@@ -71,11 +69,7 @@ const Payment = () => {
       type: "Forecast",
       price: "16.000.000",
       duration: 365,
-      description: [
-        "Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)",
-        "Akses data per jam hingga 7 hari ke depan",
-        "Akses data dalam format tabular (csv) dan format pdf",
-      ],
+      description: ["Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)", "Akses data per jam hingga 7 hari ke depan", "Akses data dalam format tabular (csv) dan format pdf"],
       disable: false,
       loading: false,
     },
@@ -86,11 +80,7 @@ const Payment = () => {
       type: "Monitoring",
       price: "1.500.000",
       duration: 30,
-      description: [
-        "Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)",
-        "Akses data hingga 30 hari yang lalu",
-        "Akses data dalam format tabular (csv) dan format pdf",
-      ],
+      description: ["Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)", "Akses data hingga 30 hari yang lalu", "Akses data dalam format tabular (csv) dan format pdf"],
       disable: false,
       loading: false,
     },
@@ -101,11 +91,7 @@ const Payment = () => {
       type: "Monitoring",
       price: "16.000.000",
       duration: 365,
-      description: [
-        "Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)",
-        "Akses data hingga 30 hari yang lalu",
-        "Akses data dalam format tabular (csv) dan format pdf",
-      ],
+      description: ["Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)", "Akses data hingga 30 hari yang lalu", "Akses data dalam format tabular (csv) dan format pdf"],
       disable: false,
       loding: false,
     },
@@ -116,11 +102,7 @@ const Payment = () => {
       type: "Forecast",
       price: "25.000", //gatau
       duration: 10, //gatau
-      description: [
-        "Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)",
-        "Akses data per jam hingga 7 hari ke depan",
-        "Akses data dalam format tabular (csv) dan format pdf",
-      ], // ini gatau juga
+      description: ["Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)", "Akses data per jam hingga 7 hari ke depan", "Akses data dalam format tabular (csv) dan format pdf"], // ini gatau juga
       disable: false,
       loding: false,
     },
@@ -131,11 +113,7 @@ const Payment = () => {
       type: "Monitoring",
       price: "25.000", //gatau
       duration: 90, //gatau
-      description: [
-        "Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)",
-        "Akses data per jam hingga 7 hari ke depan",
-        "Akses data dalam format tabular (csv) dan format pdf",
-      ], // ini gatau juga
+      description: ["Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)", "Akses data per jam hingga 7 hari ke depan", "Akses data dalam format tabular (csv) dan format pdf"], // ini gatau juga
       disable: false,
       loding: false,
     },
@@ -146,11 +124,7 @@ const Payment = () => {
       type: "Forecast",
       price: "40.000", //gatau
       duration: 14, //gatau
-      description: [
-        "Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)",
-        "Akses data per jam hingga 7 hari ke depan",
-        "Akses data dalam format tabular (csv) dan format pdf",
-      ], // ini gatau juga
+      description: ["Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)", "Akses data per jam hingga 7 hari ke depan", "Akses data dalam format tabular (csv) dan format pdf"], // ini gatau juga
       disable: false,
       loding: false,
     },
@@ -161,17 +135,23 @@ const Payment = () => {
       type: "Combo",
       price: "16.000.000", //gatau
       duration: 14, //gatau
-      description: [
-        "Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)",
-        "Akses data per jam hingga 7 hari ke depan",
-        "Akses data dalam format tabular (csv) dan format pdf",
-      ], // ini gatau juga
+      description: ["Gratis akses data klimatologis dan prakiraan bulanan (7 bulan)", "Akses data per jam hingga 7 hari ke depan", "Akses data dalam format tabular (csv) dan format pdf"], // ini gatau juga
       disable: false,
       loding: false,
     },
   ]);
+  const getPlanData = async () => {
+    try {
+      const response = await axios.get(process.env.REACT_APP_URL_API_2 + "/api/plans");
+      setPlans(response.data); // Assuming response.data contains the plans data
+    } catch (error) {
+      console.error("Error fetching plan data:", error);
+    }
+  };
 
   useEffect(() => {
+    getPlanData();
+
     if (locationParams) {
       return setLonLat({
         ...locationParams,
@@ -287,107 +267,103 @@ const Payment = () => {
   };
 
   const packageCard = (pac, index) => (
-    <div
-      key={index}
-      id={`card-sub-${pac.id}`}
-      className={`bg-white lg:mb-0 h-[90%] py-4 px-6 mt-6 relative flex flex-col gap-10 ${
-        pac.disable && "opacity-50 cursor-not-allowed"
-      } border rounded-lg`}
-    >
+    <div key={index} id={`card-sub-${pac.id}`} className={`bg-white lg:mb-0 h-[90%] py-4 px-6 mt-6 relative flex flex-col gap-10 ${pac.disable && "opacity-50 cursor-not-allowed"} border rounded-lg`}>
       <div className="flex justify-evenly flex-col gap-4 mt-2">
-          <p
-            className="text-xl pd-2 text-left text-black tracking-[.2em]"
-            id={`text-sub-title-${pac.id}`}
-          >
-            {pac.type}
-          </p>
+        <p className="text-xl pd-2 text-left text-black tracking-[.2em]" id={`text-sub-title-${pac.id}`}>
+          {pac.name}
+        </p>
 
-          <div className="flex items-end w-full">
-            <p
-              className="font-bold text-3xl text-[#1F8A70] tracking-[.1em]"
-              id={`text-sub-price-${pac.id}`}
-            >
-              Rp {pac.price}
+        <div className="flex items-end w-full">
+          {pac.price_weekly !== "0.00" && (
+            <p className="font-bold text-3xl text-[#1F8A70] tracking-[.1em]" id={`text-sub-price-weekly-${pac.id}`}>
+              Rp {new Intl.NumberFormat("id-ID").format(parseFloat(pac.price_weekly))}
             </p>
-            <p
-              className="text-md text-gray-500 tracking-[.05em]"
-              id={`text-sub-duration-${pac.id}`}
-            >
-              {pac.duration === 30 ? "/ month" :
-                pac.duration === 365 ? "/ year" :
-                pac.duration === 90 ? "/ 3 months" :
-                ` / ${pac.duration} days`
-              }
+          )}
+          {pac.price_monthly !== "0.00" && (
+            <p className="font-bold text-3xl text-[#1F8A70] tracking-[.1em]" id={`text-sub-price-monthly-${pac.id}`}>
+              Rp {new Intl.NumberFormat("id-ID").format(parseFloat(pac.price_monthly))}
             </p>
-          </div>
-
-          <div className="flex flex-col text-xs font-semibold">
-            <div className="flex items-center gap-2">
-              <MdOutlineLocationOn className="text-[#1F8A70] text-xl" />
-                <p
-                className="tracking-[.1em] text-md"
-                id={`text-sub-location-${pac.id}`}
-              >
-                {lonLat.region}
-              </p>
-            </div>
-            <p className="ml-7 font-normal tracking-[.1em]">
-              Long. {parseFloat(lonLat.lon).toFixed(5)}° Lat. {parseFloat(lonLat.lat).toFixed(5)}°
+          )}
+          {pac.price_annual !== "0.00" && (
+            <p className="font-bold text-3xl text-[#1F8A70] tracking-[.1em]" id={`text-sub-price-annual-${pac.id}`}>
+              Rp {new Intl.NumberFormat("id-ID").format(parseFloat(pac.price_annual))}
             </p>
-          </div>
+          )}
+          {pac.price_weekly !== "0.00" && (
+            <p className="text-md text-gray-500 tracking-[.05em]" id={`text-sub-duration-weekly-${pac.id}`}>
+              per Week
+            </p>
+          )}
+          {pac.price_monthly !== "0.00" && (
+            <p className="text-md text-gray-500 tracking-[.05em]" id={`text-sub-duration-monthly-${pac.id}`}>
+              per Month
+            </p>
+          )}
+          {pac.price_annual !== "0.00" && (
+            <p className="text-md text-gray-500 tracking-[.05em]" id={`text-sub-duration-annual-${pac.id}`}>
+              per Year
+            </p>
+          )}
         </div>
 
-        <div className="flex items-start justify-start w-full flex-col gap-4">
-          {pac.description.map((desc, i) => (
-            <div
-              key={i}
-              className={`flex gap-2 w-full`}
-              id={`text-sub-desc${i + 1}-${pac.id}`}
-            >
+        <div className="flex flex-col text-xs font-semibold">
+          <div className="flex items-center gap-2">
+            <MdOutlineLocationOn className="text-[#1F8A70] text-xl" />
+            <p className="tracking-[.1em] text-md" id={`text-sub-location-${pac.id}`}>
+              {lonLat.region}
+            </p>
+          </div>
+          <p className="ml-7 font-normal tracking-[.1em]">
+            Long. {parseFloat(lonLat.lon).toFixed(5)}° Lat. {parseFloat(lonLat.lat).toFixed(5)}°
+          </p>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-4 w-full  ">
+        <div className="flex flex-col gap-2 flex-grow">
+          {pac?.features?.map((feature, i) => (
+            <div key={i} className="flex gap-2 w-full" id={`text-sub-desc${i + 1}-${pac.id}`}>
               <div className="mt-[2px]">
-                <FaRegCheckCircle className="text-[#1F8A70]" />{" "}
+                <FaRegCheckCircle className="text-[#1F8A70]" />
               </div>
-              <p
-                className={`text-sm`}
-              >
-                {desc}
-              </p>
+              <p className="text-sm">{feature.feature}</p>
             </div>
           ))}
-
-          <button
-            className={`border border-green-600 px-4 py-2 mt-4 duration-150 w-full bg-[#1F8A70] flex justify-center items-center rounded-lg text-white ${
-              !pac.disable
-                ? "hover:bg-white hover:text-[#1F8A70]"
-                : "cursor-not-allowed "
-            }`}
-            disabled={pac.disable || pac.loading}
-            onClick={() => {
-              // handleSubmit(pac.duration);
-              // handleSubmitPayment(pac.duration, index);
-              navigate("/payment-process",
-                {
-                  state: { // send data using state
-                    pac: pac,
-                    location: {
-                      lat: lonLat.lat,
-                      lon: lonLat.lon,
-                      province: lonLat.province,
-                      region: lonLat.region,
-                    },
-                  }
-                }
-              );
-            }}
-            id={`btn-sub-${pac.id}`}
-          >
-            {pac.loading ? (
-              <AiOutlineLoading3Quarters className="animate-spin" />
-            ) : (
-              "Berlangganan"
-            )}
-        </button>
         </div>
+
+        <button
+          className={` bottom-2 py-2 px-4 right-1 border border-green-600 absolute duration-150 w-[98%] bg-[#1F8A70] flex justify-center items-center rounded-lg text-white ${
+            !pac.disable ? "hover:bg-white hover:text-[#1F8A70]" : "cursor-not-allowed "
+          }`}
+          disabled={pac.disable || pac.loading}
+          onClick={() => {
+            // handleSubmit(pac.duration);
+            // handleSubmitPayment(pac.duration, index);
+            navigate("/payment-process", {
+              state: {
+                pac: pac,
+                location: {
+                  lat: lonLat.lat,
+                  lon: lonLat.lon,
+                  province: lonLat.province,
+                  region: lonLat.region,
+                },
+                price:
+                  pac.price_monthly !== "0.00" && pac.price_annual !== "0.00"
+                    ? pac.price_weekly
+                    : pac.price_weekly !== "0.00" && pac.price_annual !== "0.00"
+                    ? pac.price_monthly
+                    : pac.price_weekly !== "0.00" && pac.price_monthly !== "0.00"
+                    ? pac.price_annual
+                    : null,
+              },
+            });
+          }}
+          id={`btn-sub-${pac.id}`}
+        >
+          {pac.loading ? <AiOutlineLoading3Quarters className="animate-spin" /> : "Berlangganan"}
+        </button>
+      </div>
     </div>
   );
 
@@ -395,10 +371,7 @@ const Payment = () => {
     <div>
       <div className="py-4 px-7">
         <p className="text-3xl font-bold text-[#1F8A70]">Berlangganan</p>
-        <p className="text-sm font-bold text-[#1F8A70]">
-          Untuk mendapatkan akses lebih banyak data, berdasarkan lokasi yang
-          telah dipilih.
-        </p>
+        <p className="text-sm font-bold text-[#1F8A70]">Untuk mendapatkan akses lebih banyak data, berdasarkan lokasi yang telah dipilih.</p>
       </div>
       <div className="my-4 mx-10 rounded-[17px] h-auto ">
         <div className="h-full">
@@ -407,115 +380,215 @@ const Payment = () => {
           </div> */}
 
           <div className="w-full mx-auto">
-          {/* Tabs Header */}
-          <div className="flex w-3/6 h-[40px] py-1 px-2 mx-auto border rounded-full border-[#1F8A70] bg-white /">
-            {tabs.map((tab, index) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(index)}
-                className={`flex-1 px-4 text-sm text-center font-small tracking-wider transition-colors duration-300 ${
-                  activeTab === index
-                    ? 'text-slate-50 border-2 border-[#1F8A70] bg-[#1F8A70] rounded-full'
-                    : 'text-gray-500'
-                }`}
-              >
-                {tab.title}
-              </button>
-            ))}
+            {/* Tabs Header */}
+            <div className="flex w-3/6 h-[40px] py-1 px-2 mx-auto border rounded-full border-[#1F8A70] bg-white /">
+              {tabs.map((tab, index) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(index)}
+                  className={`flex-1 px-4 text-sm text-center font-small tracking-wider transition-colors duration-300 ${activeTab === index ? "text-slate-50 border-2 border-[#1F8A70] bg-[#1F8A70] rounded-full" : "text-gray-500"}`}
+                >
+                  {tab.title}
+                </button>
+              ))}
+            </div>
+
+            {/* Tabs Content */}
+            <div className="pt-4 mt-6 w-4/6 mx-auto border rounded-2xl border-[#1F8A70] bg-white">
+              {/* tab 1 */}
+              {activeTab === 0 && (
+                <>
+                  <div className="flex justify-center">
+                    {subTabs.map((tab, index) => (
+                      <label key={tab.id} className="flex items-center cursor-pointer mr-8">
+                        <input type="radio" name="subTab" checked={activeSubTab === tab.id} onChange={() => setActiveSubTab(tab.id)} className="hidden" />
+                        <span className={`h-4 w-4 rounded-full border-2 ${activeSubTab === tab.id ? "bg-white border-[#1F8A70]" : "border-[#1F8A70]"} mr-2 flex items-center justify-center`}>
+                          {activeSubTab === tab.id && (
+                            <span className="h-2 w-2 rounded-full bg-[#1F8A70]"></span> // Inner dot
+                          )}
+                        </span>
+                        <span className={`text-sm font-semibold tracking-wider transition-colors duration-300 ${activeSubTab === tab.id ? "text-[#1F8A70]" : "text-gray-500"}`}>{tab.title}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  {activeSubTab === 0 ? (
+                    <div className="pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
+                      {plans.map((pac, index) => {
+                        if (pac.category.name === "Basic" && pac.price_weekly === "0.00" && pac.price_annual === "0.00") {
+                          return packageCard(pac, index);
+                        }
+                        return null; // Jika tidak memenuhi kondisi, kembalikan null agar tidak merender apa pun
+                      })}
+                    </div>
+                  ) : activeSubTab === 1 ? (
+                    <div className="pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
+                      {plans.map((pac, index) => {
+                        if (pac.category.name === "Basic" && pac.price_weekly === "0.00" && pac.price_monthly === "0.00") {
+                          return packageCard(pac, index);
+                        }
+                        return null; // Kembalikan null jika tidak memenuhi kondisi
+                      })}
+                    </div>
+                  ) : (
+                    <div className="pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
+                      {plans.map((pac, index) => {
+                        if (pac.category.name === "Basic" && pac.price_annual === "0.00" && pac.price_monthly === "0.00") {
+                          return packageCard(pac, index);
+                        }
+                        return null; // Kembalikan null jika tidak memenuhi kondisi
+                      })}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* tab 2 */}
+              {activeTab === 1 && (
+                <>
+                  <div className="flex justify-center">
+                    {subTabs.map((tab, index) => (
+                      <label key={tab.id} className="flex items-center cursor-pointer mr-8">
+                        <input type="radio" name="subTab" checked={activeSubTab === tab.id} onChange={() => setActiveSubTab(tab.id)} className="hidden" />
+                        <span className={`h-4 w-4 rounded-full border-2 ${activeSubTab === tab.id ? "bg-white border-[#1F8A70]" : "border-[#1F8A70]"} mr-2 flex items-center justify-center`}>
+                          {activeSubTab === tab.id && (
+                            <span className="h-2 w-2 rounded-full bg-[#1F8A70]"></span> // Inner dot
+                          )}
+                        </span>
+                        <span className={`text-sm font-semibold tracking-wider transition-colors duration-300 ${activeSubTab === tab.id ? "text-[#1F8A70]" : "text-gray-500"}`}>{tab.title}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  {activeSubTab === 0 ? (
+                    <div className="pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
+                      {plans.map((pac, index) => {
+                        if (pac.category.name === "Professional" && pac.price_weekly === "0.00" && pac.price_annual === "0.00") {
+                          return packageCard(pac, index);
+                        }
+                        return null; // Jika tidak memenuhi kondisi, kembalikan null agar tidak merender apa pun
+                      })}
+                    </div>
+                  ) : activeSubTab === 1 ? (
+                    <div className="pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
+                      {plans.map((pac, index) => {
+                        if (pac.category.name === "Professional" && pac.price_weekly === "0.00" && pac.price_monthly === "0.00") {
+                          return packageCard(pac, index);
+                        }
+                        return null; // Kembalikan null jika tidak memenuhi kondisi
+                      })}
+                    </div>
+                  ) : (
+                    <div className="pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
+                      {plans.map((pac, index) => {
+                        if (pac.category.name === "Professional" && pac.price_annual === "0.00" && pac.price_monthly === "0.00") {
+                          return packageCard(pac, index);
+                        }
+                        return null; // Kembalikan null jika tidak memenuhi kondisi
+                      })}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* tab 3 */}
+              {activeTab === 2 && (
+                <>
+                  <div className="flex justify-center">
+                    {subTabs.map((tab, index) => (
+                      <label key={tab.id} className="flex items-center cursor-pointer mr-8">
+                        <input type="radio" name="subTab" checked={activeSubTab === tab.id} onChange={() => setActiveSubTab(tab.id)} className="hidden" />
+                        <span className={`h-4 w-4 rounded-full border-2 ${activeSubTab === tab.id ? "bg-white border-[#1F8A70]" : "border-[#1F8A70]"} mr-2 flex items-center justify-center`}>
+                          {activeSubTab === tab.id && (
+                            <span className="h-2 w-2 rounded-full bg-[#1F8A70]"></span> // Inner dot
+                          )}
+                        </span>
+                        <span className={`text-sm font-semibold tracking-wider transition-colors duration-300 ${activeSubTab === tab.id ? "text-[#1F8A70]" : "text-gray-500"}`}>{tab.title}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  {activeSubTab === 2 ? (
+                    <div className="pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
+                      {plans.map((pac, index) => {
+                        if (pac.category.name === "Enterprise" && pac.price_weekly === "0.00" && pac.price_annual === "0.00") {
+                          return packageCard(pac, index);
+                        }
+                        return null; // Jika tidak memenuhi kondisi, kembalikan null agar tidak merender apa pun
+                      })}
+                    </div>
+                  ) : activeSubTab === 1 ? (
+                    <div className="pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
+                      {plans.map((pac, index) => {
+                        if (pac.category.name === "Enterprise" && pac.price_weekly === "0.00" && pac.price_monthly === "0.00") {
+                          return packageCard(pac, index);
+                        }
+                        return null; // Kembalikan null jika tidak memenuhi kondisi
+                      })}
+                    </div>
+                  ) : (
+                    <div className="pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
+                      {plans.map((pac, index) => {
+                        if (pac.category.name === "Enterprise" && pac.price_annual === "0.00" && pac.price_monthly === "0.00") {
+                          return packageCard(pac, index);
+                        }
+                        return null; // Kembalikan null jika tidak memenuhi kondisi
+                      })}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* tab 4 */}
+              {activeTab === 3 && (
+                <>
+                  <div className="flex justify-center">
+                    {subTabs.map((tab, index) => (
+                      <label key={tab.id} className="flex items-center cursor-pointer mr-8">
+                        <input type="radio" name="subTab" checked={activeSubTab === tab.id} onChange={() => setActiveSubTab(tab.id)} className="hidden" />
+                        <span className={`h-4 w-4 rounded-full border-2 ${activeSubTab === tab.id ? "bg-white border-[#1F8A70]" : "border-[#1F8A70]"} mr-2 flex items-center justify-center`}>
+                          {activeSubTab === tab.id && (
+                            <span className="h-2 w-2 rounded-full bg-[#1F8A70]"></span> // Inner dot
+                          )}
+                        </span>
+                        <span className={`text-sm font-semibold tracking-wider transition-colors duration-300 ${activeSubTab === tab.id ? "text-[#1F8A70]" : "text-gray-500"}`}>{tab.title}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  {activeSubTab === 2 ? (
+                    <div className="pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
+                      {plans.map((pac, index) => {
+                        if (pac.category.name === "Combo" && pac.price_weekly === "0.00" && pac.price_annual === "0.00") {
+                          return packageCard(pac, index);
+                        }
+                        return null; // Jika tidak memenuhi kondisi, kembalikan null agar tidak merender apa pun
+                      })}
+                    </div>
+                  ) : activeSubTab === 1 ? (
+                    <div className="pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
+                      {plans.map((pac, index) => {
+                        if (pac.category.name === "Combo" && pac.price_weekly === "0.00" && pac.price_monthly === "0.00") {
+                          return packageCard(pac, index);
+                        }
+                        return null; // Kembalikan null jika tidak memenuhi kondisi
+                      })}
+                    </div>
+                  ) : (
+                    <div className="pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
+                      {plans.map((pac, index) => {
+                        if (pac.category.name === "Combo" && pac.price_annual === "0.00" && pac.price_monthly === "0.00") {
+                          return packageCard(pac, index);
+                        }
+                        return null; // Kembalikan null jika tidak memenuhi kondisi
+                      })}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
 
-          {/* Tabs Content */}
-          <div className="pt-4 mt-6 w-4/6 mx-auto border rounded-2xl border-[#1F8A70] bg-white" >
-
-            {/* tab 1 */}
-            {activeTab === 0 &&
-              <>
-                <div className="flex justify-center">
-                {subTabs.map((tab, index) => (
-                  <label key={tab.id} className="flex items-center cursor-pointer mr-8">
-                    <input
-                      type="radio"
-                      name="subTab"
-                      checked={activeSubTab === index}
-                      onChange={() => setActiveSubTab(index)}
-                      className="hidden"
-                    />
-                    <span
-                      className={`h-4 w-4 rounded-full border-2 ${
-                        activeSubTab === index ? 'bg-white border-[#1F8A70]' : 'border-[#1F8A70]'
-                      } mr-2 flex items-center justify-center`}
-                    >
-                      {activeSubTab === index && (
-                        <span className="h-2 w-2 rounded-full bg-[#1F8A70]"></span> // Inner dot
-                      )}
-                    </span>
-                    <span
-                      className={`text-sm font-semibold tracking-wider transition-colors duration-300 ${
-                        activeSubTab === index ? 'text-[#1F8A70]' : 'text-gray-500'
-                      }`}
-                    >
-                      {tab.title}
-                    </span>
-                  </label>
-                ))}
-                </div>
-
-                {activeSubTab === 0 ?
-                  <div className="pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
-                    {packageAvailable.map((pac, index) => {
-                      if  (pac.category === "basic" && pac.duration === 30) {
-                        return packageCard(pac, index);
-                      }
-                    })}
-                  </div>
-                :
-                  <div className="pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
-                    {packageAvailable.map((pac, index) => {
-                      if  (pac.category === "basic" && pac.duration === 365) {
-                        return packageCard(pac, index);
-                      }
-                    })}
-                  </div>
-                }
-              </>
-            }
-
-            {/* tab 2 */}
-            {activeTab === 1 &&
-              <div className="mt-2 pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
-                {packageAvailable.map((pac, index) => {
-                  if  (pac.category === "profesional") {
-                    return packageCard(pac, index);
-                  }
-                })}
-              </div>
-            }
-
-            {/* tab 3 */}
-            {activeTab === 2 &&
-              <div className="mt-2 pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
-                {packageAvailable.map((pac, index) => {
-                  if (pac.category === "enterprise") {
-                    return packageCard(pac, index);
-                  }
-                })}
-              </div>
-            }
-
-            {/* tab 4 */}
-            {activeTab === 3 &&
-              <div className="mt-2 pb-8 lg:pb-0 px-4 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-3 h-full w-full lg:h-[55vh] items-center">
-                {packageAvailable.map((pac, index) => {
-                  if  (pac.category === "combo") {
-                    return packageCard(pac, index);
-                  }
-                })}
-              </div>
-            }
-
-          </div>
-        </div>
-          
           {/* <div className="mt-8 pb-8 lg:pb-0 flex flex-col gap-4 md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mx-[10%] h-full lg:h-[55vh] items-center">
             {packageAvailable.map((pac, index) => (
               <div

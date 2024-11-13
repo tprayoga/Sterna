@@ -9,92 +9,50 @@ import { formatDate } from "node-format-date";
 export default function History() {
   const [search, setSearch] = useState("");
   const [data, setData] = useState([]);
+  const [datas, setDatas] = useState([]);
+
   const [id, setId] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const { token } = useSelector((state) => state.auth);
   const SuccessNotif = (msg) => toast.success(msg);
   const ErrorNotif = (msg) => toast.error(msg);
-
+  const [index2, setIndex2] = useState(0);
   const historyColumn = [
     {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">Nama</p>
-      ),
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Tanggal</p>,
+      selector: (row) => <div className="2xl:text-lg xl:text-xs font-normal text-black">{formatDate(row.created_at)}</div>,
+    },
+    {
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Tipe Paket</p>,
+      selector: (row) => <div className="2xl:text-lg xl:text-xs font-normal text-black">{row.package} </div>,
+    },
+    {
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Lokasi</p>,
       selector: (row) => (
         <div className="2xl:text-lg xl:text-xs font-normal text-black">
-          {row.name}
+          {row.location.region}, long {row.location.lon}, lat {row.location.lat}
         </div>
       ),
     },
     {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">Email</p>
-      ),
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Status</p>,
       selector: (row) => (
-        <div className="2xl:text-lg xl:text-xs font-normal text-black">
-          {row.email}
-        </div>
+        <div className={`2xl:text-lg xl:text-xs font-normal ${row.status === "Cancel" && "text-[#DD2000]"} ${row.status === "SUCCESS" && "text-[#00AF50]"} ${row.status === "PENDING" && "text-yellow-500"}`}>{row.status}</div>
       ),
     },
     {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">Tanggal</p>
-      ),
-      selector: (row) => (
-        <div className="2xl:text-lg xl:text-xs font-normal text-black">
-          {formatDate(row.created_at)}
-        </div>
-      ),
-    },
-    {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">
-          Tipe Paket
-        </p>
-      ),
-      selector: (row) => (
-        <div className="2xl:text-lg xl:text-xs font-normal text-black">
-          {row.paket} Hari
-        </div>
-      ),
-    },
-    {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">Lokasi</p>
-      ),
-      selector: (row) => (
-        <div className="2xl:text-lg xl:text-xs font-normal text-black">
-          {row.region}, long {row.lon}, lat {row.lat}
-        </div>
-      ),
-    },
-    {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">Status</p>
-      ),
-      selector: (row) => (
-        <div
-          className={`2xl:text-lg xl:text-xs font-normal ${
-            row.status === "Cancel" && "text-[#DD2000]"
-          } ${row.status === "Success" && "text-[#00AF50]"} ${
-            row.status === "Pending" && "text-yellow-500"
-          }`}
-        >
-          {row.status}
-        </div>
-      ),
-    },
-    {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">Aksi</p>
-      ),
-      selector: (row) => (
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Aksi</p>,
+      selector: (row, index) => (
         <div className="2xl:text-lg xl:text-xs font-normal text-black">
           <select
             defaultValue={""}
             className="bg-black text-white rounded-md px-6"
-            onChange={(e) => updateStatus(e.target.value, row.id)}
+            onChange={(e) => {
+              updateStatus(e.target.value, row.id);
+              setIndex2(index);
+            }}
           >
+            {" "}
             <option value="">Pilih Aksi</option>
             <option value="Success">Success</option>
             <option value="Cancel">Cancel</option>
@@ -127,9 +85,16 @@ export default function History() {
 
   const setSuccess = async (id) => {
     try {
+      await axios.put(
+        process.env.REACT_APP_URL_API + "/subscriptions/" + id + "/status",
+        {
+          status: "SUCCESS",
+        },
+        config
+      );
       await axios
         .put(
-          process.env.REACT_APP_URL_API + "/payment/" + id,
+          process.env.REACT_APP_URL_API + "/payment/" + datas[index2]?.id,
           {
             status: "Success",
           },
@@ -167,13 +132,11 @@ export default function History() {
 
   const delData = async () => {
     try {
-      await axios
-        .delete(process.env.REACT_APP_URL_API + "/payment/admin/" + id, config)
-        .then((data) => {
-          setIsOpen(false);
-          SuccessNotif("Sukses menghapus data");
-          getData();
-        });
+      await axios.delete(process.env.REACT_APP_URL_API + "/payment/admin/" + id, config).then((data) => {
+        setIsOpen(false);
+        SuccessNotif("Sukses menghapus data");
+        getData();
+      });
     } catch (error) {
       console.log(error);
       ErrorNotif("Gagal menghapus data");
@@ -182,10 +145,30 @@ export default function History() {
 
   const getData = async () => {
     try {
-      const { data } = await axios.get(
-        process.env.REACT_APP_URL_API + "/payment/all",
-        config
-      );
+      const { data } = await axios.get(process.env.REACT_APP_URL_API + "/subscriptions");
+      const sortedData = data.sort((a, b) => {
+        const keyA = new Date(a.created_at),
+          keyB = new Date(b.created_at);
+
+        if (keyA < keyB) return 1;
+        if (keyA > keyB) return -1;
+        return 0;
+      });
+      setData(sortedData);
+
+      // setData(
+      //   sortedData.map((item) => ({
+      //     ...item,
+      //     name: item.name.includes("(?)") ? item.name.replace("(?)", " ") : item.name,
+      //   }))
+      // );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const getDatas = async () => {
+    try {
+      const { data } = await axios.get(process.env.REACT_APP_URL_API + "/payment/all", config);
 
       const sortedData = data.sort((a, b) => {
         const keyA = new Date(a.created_at),
@@ -196,18 +179,19 @@ export default function History() {
         return 0;
       });
 
-      setData(
+      setDatas(
         sortedData.map((item) => ({
           ...item,
-          name: item.name.includes("(?)")
-            ? item.name.replace("(?)", " ")
-            : item.name,
+          name: item.name.includes("(?)") ? item.name.replace("(?)", " ") : item.name,
         }))
       );
     } catch (error) {
       console.log(error);
     }
   };
+
+  console.log(data);
+  console.log(datas[index2]?.id);
 
   const downloadPayment = async () => {
     const url = `${process.env.REACT_APP_URL_API}/paymentcsv`;
@@ -247,6 +231,7 @@ export default function History() {
 
   useEffect(() => {
     getData();
+    getDatas();
   }, []);
 
   useEffect(() => {
@@ -265,45 +250,20 @@ export default function History() {
   return (
     <div className="2xl:mt-8">
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-10"
-          onClose={() => setIsOpen(false)}
-        >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
+        <Dialog as="div" className="relative z-10" onClose={() => setIsOpen(false)}>
+          <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
             <div className="fixed inset-0 bg-black bg-opacity-25" />
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
+              <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
                 <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900"
-                  >
+                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
                     Peringatan
                   </Dialog.Title>
                   <div className="mt-2">
-                    <p className="text-sm text-gray-500">
-                      Apa Anda yakin akan menghapus data?
-                    </p>
+                    <p className="text-sm text-gray-500">Apa Anda yakin akan menghapus data?</p>
                   </div>
 
                   <div className="mt-4 flex justify-end gap-4">
@@ -330,14 +290,9 @@ export default function History() {
       </Transition>
 
       <div className="flex items-center justify-between">
-        <h1 className="font-semibold text-4xl py-3 m-0">
-          Data Riwayat Pembelian
-        </h1>
+        <h1 className="font-semibold text-4xl py-3 m-0">Data Riwayat Pembelian</h1>
         <div className="flex gap-3 items-center">
-          <button
-            className="rounded-lg px-8 py-2 text-white bg-[#00672E] hover:opacity-60"
-            onClick={() => downloadPayment()}
-          >
+          <button className="rounded-lg px-8 py-2 text-white bg-[#00672E] hover:opacity-60" onClick={() => downloadPayment()}>
             Unduh Data
           </button>
           <div className="group relative w-52">
@@ -349,18 +304,8 @@ export default function History() {
               onChange={(e) => setSearch(e.target.value)}
             />
 
-            <svg
-              width="20"
-              height="20"
-              fill="currentColor"
-              className="absolute right-3 top-1/2 -mt-2.5 text-white pointer-events-none "
-              aria-hidden="true"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-              />
+            <svg width="20" height="20" fill="currentColor" className="absolute right-3 top-1/2 -mt-2.5 text-white pointer-events-none " aria-hidden="true">
+              <path fillRule="evenodd" clipRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" />
             </svg>
           </div>
         </div>
