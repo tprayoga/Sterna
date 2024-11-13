@@ -10,6 +10,7 @@ import NavbarAdmin from "@components/organism/NavbarAdmin";
 import { TablePagination } from "@components/organism/Table";
 import { Upload } from "@components/organism/Upload";
 import ManageUser from "@components/organism/ManageUser";
+import Package from "@components/organism/Package";
 import History from "@components/organism/History";
 import ToastHook from "@hooks/Toast";
 import { Dialog, Transition } from "@headlessui/react";
@@ -47,75 +48,32 @@ export default function Dashboard() {
 
   const column = [
     {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">Nama</p>
-      ),
-      selector: (row) => (
-        <div className="2xl:text-lg xl:text-xs font-normal text-black">
-          {row.name}
-        </div>
-      ),
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Nama</p>,
+      selector: (row) => <div className="2xl:text-lg xl:text-xs font-normal text-black">{row.name}</div>,
     },
     {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">Tipe</p>
-      ),
-      selector: (row) => (
-        <div className="2xl:text-lg xl:text-xs font-normal text-black">
-          {row.type}
-        </div>
-      ),
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Tipe</p>,
+      selector: (row) => <div className="2xl:text-lg xl:text-xs font-normal text-black">{row.type}</div>,
     },
     {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">Ukuran</p>
-      ),
-      selector: (row) => (
-        <div className="2xl:text-lg xl:text-xs font-normal text-black">
-          {row.size}
-        </div>
-      ),
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Ukuran</p>,
+      selector: (row) => <div className="2xl:text-lg xl:text-xs font-normal text-black">{row.size}</div>,
     },
     {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">
-          Kesehatan
-        </p>
-      ),
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Kesehatan</p>,
       selector: (row) => (
-        <div
-          className={`2xl:text-lg xl:text-xs font-normal ${
-            row.health === "green" && "text-green-500"
-          } ${row.health === "yellow" && "text-yellow-500"} ${
-            row.health === "red" && "text-red-500"
-          }`}
-        >
-          {row.health === "green" && "Sehat"}{" "}
-          {row.health === "yellow" && "Siaga"}
+        <div className={`2xl:text-lg xl:text-xs font-normal ${row.health === "green" && "text-green-500"} ${row.health === "yellow" && "text-yellow-500"} ${row.health === "red" && "text-red-500"}`}>
+          {row.health === "green" && "Sehat"} {row.health === "yellow" && "Siaga"}
           {row.health === "red" && "Kritis"}
         </div>
       ),
     },
     {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">Status</p>
-      ),
-      selector: (row) => (
-        <div
-          className={
-            row.status !== "Success"
-              ? "2xl:text-lg xl:text-xs font-normal text-yellow-500"
-              : "2xl:text-lg xl:text-xs font-normal text-green-500"
-          }
-        >
-          {row.status === "Success" ? "Success" : "Pending"}
-        </div>
-      ),
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Status</p>,
+      selector: (row) => <div className={row.status !== "Success" ? "2xl:text-lg xl:text-xs font-normal text-yellow-500" : "2xl:text-lg xl:text-xs font-normal text-green-500"}>{row.status === "Success" ? "Success" : "Pending"}</div>,
     },
     {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">Aksi</p>
-      ),
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Aksi</p>,
       selector: (row) => (
         <div className="2xl:text-lg xl:text-xs font-normal text-white">
           <button
@@ -125,10 +83,7 @@ export default function Dashboard() {
               setIsHistory(true);
               setPrepData({
                 bulan: "00",
-                jenis:
-                  row.type === "Bulanan"
-                    ? "historis-bulanan"
-                    : "historis-tahunan",
+                jenis: row.type === "Bulanan" ? "historis-bulanan" : "historis-tahunan",
                 tahun: "00",
                 tanggal: "00",
                 typename: row.name,
@@ -144,59 +99,25 @@ export default function Dashboard() {
 
   const columnPrakiraan = [
     {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">Nama</p>
-      ),
-      selector: (row) => (
-        <div className="2xl:text-lg xl:text-xs font-normal text-black">
-          {row.name}
-        </div>
-      ),
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Nama</p>,
+      selector: (row) => <div className="2xl:text-lg xl:text-xs font-normal text-black">{row.name}</div>,
     },
     {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">Tipe</p>
-      ),
-      selector: (row) => (
-        <div className="2xl:text-lg xl:text-xs font-normal text-black">
-          {row.type}
-        </div>
-      ),
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Tipe</p>,
+      selector: (row) => <div className="2xl:text-lg xl:text-xs font-normal text-black">{row.type}</div>,
     },
     {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">Ukuran</p>
-      ),
-      selector: (row) => (
-        <div className="2xl:text-lg xl:text-xs font-normal text-black">
-          {row.size}
-        </div>
-      ),
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Ukuran</p>,
+      selector: (row) => <div className="2xl:text-lg xl:text-xs font-normal text-black">{row.size}</div>,
     },
     {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">Tanggal</p>
-      ),
-      selector: (row) => (
-        <div className="2xl:text-lg xl:text-xs font-normal text-black">
-          {row.time}
-        </div>
-      ),
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Tanggal</p>,
+      selector: (row) => <div className="2xl:text-lg xl:text-xs font-normal text-black">{row.time}</div>,
     },
     {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">
-          Kesehatan
-        </p>
-      ),
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Kesehatan</p>,
       selector: (row) => (
-        <div
-          className={`2xl:text-lg xl:text-xs font-normal ${
-            row.health === "green" && "text-green-500"
-          } ${row.health === "yellow" && "text-yellow-500"} ${
-            row.health === "red" && "text-red-500"
-          }`}
-        >
+        <div className={`2xl:text-lg xl:text-xs font-normal ${row.health === "green" && "text-green-500"} ${row.health === "yellow" && "text-yellow-500"} ${row.health === "red" && "text-red-500"}`}>
           {row.health === "green" && "Sehat"}
           {row.health === "yellow" && "Siaga"}
           {row.health === "red" && "Kritis"}
@@ -204,20 +125,8 @@ export default function Dashboard() {
       ),
     },
     {
-      name: (
-        <p className="2xl:text-lg xl:text-sm font-medium text-black">Status</p>
-      ),
-      selector: (row) => (
-        <div
-          className={
-            row.status !== "Success"
-              ? "2xl:text-lg xl:text-xs font-normal text-yellow-500"
-              : "2xl:text-lg xl:text-xs font-normal text-green-500"
-          }
-        >
-          {row.status === "Success" ? "Success" : "Pending"}
-        </div>
-      ),
+      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Status</p>,
+      selector: (row) => <div className={row.status !== "Success" ? "2xl:text-lg xl:text-xs font-normal text-yellow-500" : "2xl:text-lg xl:text-xs font-normal text-green-500"}>{row.status === "Success" ? "Success" : "Pending"}</div>,
     },
     // {
     //   name: (
@@ -307,19 +216,17 @@ export default function Dashboard() {
 
   const getHistoryBulanan = async () => {
     try {
-      await axios
-        .get(process.env.REACT_APP_URL_API + "/historis-bulanan", config)
-        .then((data) => {
-          setDataHistory(
-            data.data.map((item) => ({
-              name: item.typename,
-              size: item.size,
-              health: item.health,
-              status: item.status,
-              type: "Bulanan",
-            }))
-          );
-        });
+      await axios.get(process.env.REACT_APP_URL_API + "/historis-bulanan", config).then((data) => {
+        setDataHistory(
+          data.data.map((item) => ({
+            name: item.typename,
+            size: item.size,
+            health: item.health,
+            status: item.status,
+            type: "Bulanan",
+          }))
+        );
+      });
     } catch (error) {
       console.log(error);
     }
@@ -327,20 +234,18 @@ export default function Dashboard() {
 
   const getHistoryTahunan = async () => {
     try {
-      await axios
-        .get(process.env.REACT_APP_URL_API + "/historis-tahunan", config)
-        .then((data) => {
-          setDataHistory((prev) => [
-            ...prev,
-            ...data.data.map((item) => ({
-              name: item.typename,
-              size: item.size,
-              health: item.health,
-              status: item.status,
-              type: "Tahunan",
-            })),
-          ]);
-        });
+      await axios.get(process.env.REACT_APP_URL_API + "/historis-tahunan", config).then((data) => {
+        setDataHistory((prev) => [
+          ...prev,
+          ...data.data.map((item) => ({
+            name: item.typename,
+            size: item.size,
+            health: item.health,
+            status: item.status,
+            type: "Tahunan",
+          })),
+        ]);
+      });
     } catch (error) {
       console.log(error);
     }
@@ -348,19 +253,17 @@ export default function Dashboard() {
 
   const getHistoryTahunanFilter = async () => {
     try {
-      await axios
-        .get(process.env.REACT_APP_URL_API + "/historis-tahunan", config)
-        .then((data) => {
-          setDataHistory(
-            data.data.map((item) => ({
-              name: item.typename,
-              size: item.size,
-              health: item.health,
-              status: item.status,
-              type: "Tahunan",
-            }))
-          );
-        });
+      await axios.get(process.env.REACT_APP_URL_API + "/historis-tahunan", config).then((data) => {
+        setDataHistory(
+          data.data.map((item) => ({
+            name: item.typename,
+            size: item.size,
+            health: item.health,
+            status: item.status,
+            type: "Tahunan",
+          }))
+        );
+      });
     } catch (error) {
       console.log(error);
     }
@@ -368,20 +271,18 @@ export default function Dashboard() {
 
   const getForecast = async () => {
     try {
-      await axios
-        .get(process.env.REACT_APP_URL_API + "/prakiraan", config)
-        .then((data) => {
-          setDataForecast(
-            data.data.map((item) => ({
-              name: item.typename,
-              size: item.size,
-              health: item.health,
-              status: item.status,
-              type: item.jenis,
-              time: item.tanggal + "-" + item.bulan + "-" + item.tahun,
-            }))
-          );
-        });
+      await axios.get(process.env.REACT_APP_URL_API + "/prakiraan", config).then((data) => {
+        setDataForecast(
+          data.data.map((item) => ({
+            name: item.typename,
+            size: item.size,
+            health: item.health,
+            status: item.status,
+            type: item.jenis,
+            time: item.tanggal + "-" + item.bulan + "-" + item.tahun,
+          }))
+        );
+      });
     } catch (error) {
       console.log(error);
     }
@@ -436,39 +337,16 @@ export default function Dashboard() {
     <div className="h-full w-[100vw] flex flex-row bg-[#F7FFF4] box-border">
       <Sidebar setTitle={setTitle} title={title} />
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-10"
-          onClose={() => setIsOpen(false)}
-        >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
+        <Dialog as="div" className="relative z-10" onClose={() => setIsOpen(false)}>
+          <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
             <div className="fixed inset-0 bg-black bg-opacity-25" />
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
+              <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
                 <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900"
-                  >
+                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
                     Peringatan
                   </Dialog.Title>
                   <div className="mt-2">
@@ -503,12 +381,7 @@ export default function Dashboard() {
         <NavbarAdmin title={title} />
 
         <div className="min-h-[67.55vh]">
-          {upload && (
-            <Upload
-              isPrakiraan={isPrakiraan}
-              close={() => setTitle("Dashboard")}
-            />
-          )}
+          {upload && <Upload isPrakiraan={isPrakiraan} close={() => setTitle("Dashboard")} />}
 
           {!upload && title.includes("Dashboard") && (
             <>
@@ -522,11 +395,7 @@ export default function Dashboard() {
                   Data Historis
                 </h1>
                 <div className="flex items-center gap-3">
-                  <select
-                    className="bg-[#ffffff00] border-b border-slate-500"
-                    onChange={(e) => setTypeSet(e.target.value)}
-                    defaultValue="Netral"
-                  >
+                  <select className="bg-[#ffffff00] border-b border-slate-500" onChange={(e) => setTypeSet(e.target.value)} defaultValue="Netral">
                     <option value="Netral">Filter Type</option>
                     <option value="Netral">Semua</option>
                     <option value="Bulanan">Bulanan</option>
@@ -545,11 +414,7 @@ export default function Dashboard() {
                   </button>
                 </div>
               </div>
-              <TablePagination
-                items={dataHistory}
-                column={column}
-                ItemsPerPage={5}
-              />
+              <TablePagination items={dataHistory} column={column} ItemsPerPage={5} />
 
               <div className="flex items-center justify-between 2xl:mt-8">
                 <h1 className="font-semibold text-4xl py-3">Data Prakiraan</h1>
@@ -564,11 +429,7 @@ export default function Dashboard() {
                   Tambah Data
                 </button>
               </div>
-              <TablePagination
-                items={dataForecast}
-                column={columnPrakiraan}
-                ItemsPerPage={5}
-              />
+              <TablePagination items={dataForecast} column={columnPrakiraan} ItemsPerPage={5} />
             </>
           )}
 
@@ -577,6 +438,7 @@ export default function Dashboard() {
           {title === "Riwayat" && <History />}
 
           {title === "Survey" && <SurveyAdmin />}
+          {title === "Package" && <Package />}
         </div>
       </div>
     </div>
