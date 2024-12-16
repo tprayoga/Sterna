@@ -14,6 +14,7 @@ const PaymentProcess = () => {
   const pac = location.state?.pac;
   const locationDetail = location.state?.location;
   const [data, setData] = useState();
+  const [errorMaxSize, setErrorMaxSize] = useState(false);
   const { successToast } = ToastHook();
 
   // dummy payment methods
@@ -38,9 +39,15 @@ const PaymentProcess = () => {
   // function to print per characters
   const printCharacters = (string, index) => {
     return (
-      <div className="flex flex-row gap-4 py-2 cursor-pointer w-auto" onClick={() => copyText(index)}>
+      <div
+        className="flex flex-row gap-4 py-2 cursor-pointer w-auto"
+        onClick={() => copyText(index)}
+      >
         {string.split("").map((char, index) => (
-          <p className="px-2 py-1 text-gray-500 border border-grey-300 " key={index}>
+          <p
+            className="px-2 py-1 text-gray-500 border border-grey-300 "
+            key={index}
+          >
             {char}
           </p>
         ))}
@@ -100,11 +107,21 @@ const PaymentProcess = () => {
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
+      const maxSizeInBytes = 1 * 1024 * 1024; // 1MB dalam byte
+
+      // Validasi ukuran file
+      if (file.size > maxSizeInBytes) {
+        event.target.value = ""; // Reset input file
+        setErrorMaxSize(true);
+        return;
+      }
+
       setIsLoading(true);
       try {
         const base64 = await convertToBase64(file);
         setSelectedFile(file);
         setBase64String(base64);
+        setErrorMaxSize(false);
       } catch (error) {
         console.error("Error converting file to Base64:", error);
       } finally {
@@ -140,43 +157,50 @@ const PaymentProcess = () => {
       const formattedDate = today.toISOString().split("T")[0];
 
       // Make the POST request to the server to create the subscription
-      await axios.post(`${process.env.REACT_APP_URL_API}/subscriptions`, {
-        lat: locationDetail.lat,
-        lon: locationDetail.lon,
-        province: locationDetail.province,
-        region: locationDetail.region,
-        day: pac.duration,
-        uuid: user.uuid,
-        plan_id: pac.id,
-        location: {
-          region: locationDetail.region,
-          province: locationDetail.province,
-          lon: locationDetail.lon,
-          lat: locationDetail.lat,
-        },
-        start_date: formattedDate,
-        package: packageType, // Use the determined package type
-        qty: 1,
-        base64image: base64String,
-        user_id: user.id,
-      });
-
-      // Make the POST request for payment
-      await axios.post(
-        `${process.env.REACT_APP_URL_API}/payment`,
+      const resSub = await axios.post(
+        `${process.env.REACT_APP_URL_API}/subscriptions`,
         {
-          lat: locationDetail.lat, // Fix lat/lon order here
-          lon: locationDetail.lon, // Fix lat/lon order here
-          province: locationDetail.province,
-          region: locationDetail.region,
-          day: duration, // Use duration here
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+          user_id: user.id,
+          plan_id: pac.id,
+          location: {
+            region: locationDetail.region,
+            province: locationDetail.province,
+            lon: locationDetail.lon,
+            lat: locationDetail.lat,
           },
+          start_date: formattedDate,
+          package: packageType, // Use the determined package type
+          qty: 1,
+          base64image: base64String,
+          status: "SUCCESS",
         }
       );
+
+      // update status to success
+      await axios.put(
+        `${process.env.REACT_APP_URL_API}/subscriptions/${resSub.data.subscription.id}/status`,
+        {
+          status: "SUCCESS",
+        }
+      );
+
+      // Make the POST request for payment
+      //  await axios.post(
+      //         `${process.env.REACT_APP_URL_API}/payment`,
+      //         {
+      //           lat: locationDetail.lat, // Fix lat/lon order here
+      //           lon: locationDetail.lon, // Fix lat/lon order here
+      //           province: locationDetail.province,
+      //           region: locationDetail.region,
+      //           day: duration, // Use duration here,
+      //           status: "Success", //make status payment success
+      //         },
+      //         {
+      //           headers: {
+      //             Authorization: `Bearer ${token}`,
+      //           },
+      //         }
+      //       );
 
       handleSaveLocation(); // Call any other function after success
       successToast("Request Berhasil");
@@ -196,7 +220,9 @@ const PaymentProcess = () => {
         <div className="px-[2%] py-4 2xl:container mx-auto">
           {/* header */}
           <div className="py-8">
-            <p className="text-3xl font-bold text-[#1F8A70]">Total Pembayaran</p>
+            <p className="text-3xl font-bold text-[#1F8A70]">
+              Total Pembayaran
+            </p>
             {/* if there is description put it here */}
           </div>
 
@@ -204,7 +230,9 @@ const PaymentProcess = () => {
           <div className="py-6 w-full mx-auto flex flex-row gap-10">
             {/* metode pembayaran */}
             <div className="p-6 w-4/6 gap-6 flex flex-col border rounded-md border-gray-300 bg-white">
-              <p className="text-2xl font-bold text-[#1F8A70]">Metode Pembayaran</p>
+              <p className="text-2xl font-bold text-[#1F8A70]">
+                Metode Pembayaran
+              </p>
 
               <div className="ml-4 flex flex-col text-lg text-gray-600 font-semibold gap-4">
                 {paymentMethods.map((data, index) => (
@@ -235,45 +263,83 @@ const PaymentProcess = () => {
                   </p>
                 )}
                 {pac.price_weekly !== "0.00" && (
-                  <p className="font-semibold" id={`text-sub-duration-weekly-${pac.id}`}>
+                  <p
+                    className="font-semibold"
+                    id={`text-sub-duration-weekly-${pac.id}`}
+                  >
                     7 Days
                   </p>
                 )}
                 {pac.price_monthly !== "0.00" && (
-                  <p className="font-semibold" id={`text-sub-duration-monthly-${pac.id}`}>
+                  <p
+                    className="font-semibold"
+                    id={`text-sub-duration-monthly-${pac.id}`}
+                  >
                     1 Month
                   </p>
                 )}
                 {pac.price_annual !== "0.00" && (
-                  <p className="font-semibold" id={`text-sub-duration-annual-${pac.id}`}>
+                  <p
+                    className="font-semibold"
+                    id={`text-sub-duration-annual-${pac.id}`}
+                  >
                     1 Year
                   </p>
                 )}
               </div>
 
               {pac.price_weekly !== "0.00" && (
-                <p className="text-2xl text-right font-bold text-[#1F8A70] " id={`text-sub-price-weekly-${pac.id}`}>
-                  Rp {new Intl.NumberFormat("id-ID").format(parseFloat(pac.price_weekly))}
+                <p
+                  className="text-2xl text-right font-bold text-[#1F8A70] "
+                  id={`text-sub-price-weekly-${pac.id}`}
+                >
+                  Rp{" "}
+                  {new Intl.NumberFormat("id-ID").format(
+                    parseFloat(pac.price_weekly)
+                  )}
                 </p>
               )}
               {pac.price_monthly !== "0.00" && (
-                <p className="text-2xl text-right font-bold text-[#1F8A70] " id={`text-sub-price-monthly-${pac.id}`}>
-                  Rp {new Intl.NumberFormat("id-ID").format(parseFloat(pac.price_monthly))}
+                <p
+                  className="text-2xl text-right font-bold text-[#1F8A70] "
+                  id={`text-sub-price-monthly-${pac.id}`}
+                >
+                  Rp{" "}
+                  {new Intl.NumberFormat("id-ID").format(
+                    parseFloat(pac.price_monthly)
+                  )}
                 </p>
               )}
               {pac.price_annual !== "0.00" && (
-                <p className="text-2xl text-right font-bold text-[#1F8A70] " id={`text-sub-price-annual-${pac.id}`}>
-                  Rp {new Intl.NumberFormat("id-ID").format(parseFloat(pac.price_annual))}
+                <p
+                  className="text-2xl text-right font-bold text-[#1F8A70] "
+                  id={`text-sub-price-annual-${pac.id}`}
+                >
+                  Rp{" "}
+                  {new Intl.NumberFormat("id-ID").format(
+                    parseFloat(pac.price_annual)
+                  )}
                 </p>
               )}
               <div className="flex flex-col items-center mt-8">
                 {/* Button Upload */}
-                <button onClick={handleButtonClick} className="px-6 py-2 w-full max-w-sm bg-[#1F8A70] text-white rounded-lg hover:bg-[#1F8A70] focus:outline-none focus:ring-2 focus:ring-[#1F8A70] focus:ring-offset-2" disabled={isLoading}>
+                <button
+                  onClick={handleButtonClick}
+                  className="px-6 py-2 w-full max-w-sm bg-[#1F8A70] text-white rounded-lg hover:bg-[#1F8A70] focus:outline-none focus:ring-2 focus:ring-[#1F8A70] focus:ring-offset-2"
+                  disabled={isLoading}
+                >
                   {isLoading ? "Uploading..." : "Upload a file"}
                 </button>
 
                 {/* Input File (Hidden) */}
-                <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileChange} />
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  // accept="image/*,application/pdf" // Hanya menerima gambar dan PDF
+                />
 
                 {/* Menampilkan File yang Sudah Diunggah */}
                 {selectedFile && (
@@ -283,10 +349,19 @@ const PaymentProcess = () => {
                   </div>
                 )}
 
+                {/* menampilkan error jika file melebihi 1 MB */}
+                {errorMaxSize && (
+                  <p className="py-2 text-red-300">Maksimal ukuran file: 1Mb</p>
+                )}
+
                 {/* Menampilkan String Base64 */}
               </div>
               <div className="flex justify-end">
-                <button disabled={!selectedFile} className="p-2 w-[30%] text-center text-white bg-[#1F8A70] border rounded-md " onClick={() => handleSubmitPayment()}>
+                <button
+                  disabled={!selectedFile}
+                  className="p-2 w-[30%] text-center text-white bg-[#1F8A70] border rounded-md "
+                  onClick={() => handleSubmitPayment()}
+                >
                   Submit
                 </button>
               </div>
@@ -295,7 +370,9 @@ const PaymentProcess = () => {
         </div>
       ) : (
         <div className="pt-6">
-          <p className="text-3xl text-center font-bold text-[#1F8A70]">Halaman pembayaran tidak ditemukan!</p>
+          <p className="text-3xl text-center font-bold text-[#1F8A70]">
+            Halaman pembayaran tidak ditemukan!
+          </p>
         </div>
       )}
     </>

@@ -1,7 +1,11 @@
 import React, { createRef, useEffect, useMemo, useRef, useState } from "react";
 import Chart from "@components/molecule/Chart/Chart";
 import { AiOutlineArrowLeft, AiOutlineLock } from "react-icons/ai";
-import { IoIosArrowBack, IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
+import {
+  IoIosArrowBack,
+  IoIosArrowDown,
+  IoIosArrowForward,
+} from "react-icons/io";
 import { FaLocationArrow, FaRegFilePdf } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,6 +21,7 @@ import axios from "axios";
 import DetailMap from "@components/molecule/Map/DetailMap";
 import WindowSize from "@hooks/windowSize";
 import Skeleton from "react-loading-skeleton";
+import { fDate, fDateTime } from "@utils/format-date";
 
 const DataMonitoring = () => {
   const navigate = useNavigate();
@@ -44,11 +49,26 @@ const DataMonitoring = () => {
   useEffect(() => {
     const fetchPayment = async () => {
       try {
-        const { data } = await axios.get(`${process.env.REACT_APP_URL_API}/payment/user`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const { data } = await axios.get(
+          // `${process.env.REACT_APP_URL_API}/payment/user`,
+          `${process.env.REACT_APP_URL_API}/subscription`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const newData = data.map((item) => ({
+          ...item,
+          exp: item.end_date,
+          id: item.id,
+          lat: Number(item.location.lat),
+          lon: Number(item.location.lon),
+          paket: parseInt(item?.plan?.description) || 14,
+          created_at: fDateTime(item.created_at, "yyyy-MM-dd HH:mm:ss"),
+          updated_at: fDateTime(item.updated_at, "yyyy-MM-dd HH:mm:ss"),
+        }));
 
         setListPayment(data);
       } catch (error) {
@@ -88,7 +108,16 @@ const DataMonitoring = () => {
     if (listPayment.length > 0) {
       // set checking payment
       for (const payment of listPayment) {
-        if (parseFloat(payment.lat.toFixed(1)) === lonLat.lat && parseFloat(payment.lon.toFixed(1)) === lonLat.lon && payment.status === "Success") {
+        const today = new Date().toISOString().split("T")[0]; // Mendapatkan tanggal hari ini dalam format yyyy-mm-dd
+        const paymentExp = new Date(payment.exp).toISOString().split("T")[0]; // Konversi exp ke format yyyy-mm-dd
+
+        if (
+          parseFloat(payment.lat.toFixed(1)) === lonLat.lat &&
+          parseFloat(payment.lon.toFixed(1)) === lonLat.lon &&
+          payment?.plan?.name !== "Forecast" &&
+          payment.status.toLowerCase() === "success" &&
+          paymentExp > today // Kondisi tambahan untuk memeriksa apakah exp lebih dari hari ini
+        ) {
           const dateParts = payment.updated_at.split(" ")[0].split("-");
           const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
 
@@ -114,7 +143,15 @@ const DataMonitoring = () => {
 
   const [loadingDownloadPdf, setLoadingDownloadPdf] = useState(false);
 
-  const handleDownloadPdf = async (longitude, latitude, region, province, fileName, utc, wait = 5) => {
+  const handleDownloadPdf = async (
+    longitude,
+    latitude,
+    region,
+    province,
+    fileName,
+    utc,
+    wait = 5
+  ) => {
     setLoadingDownloadPdf(true);
     const origin = window.location.origin;
     const uri = `${origin}/detail/test-monitoring?long=${longitude}&lat=${latitude}&region=${region}&province=${province}&utc=${utc}`;
@@ -183,7 +220,9 @@ const DataMonitoring = () => {
   // ANGIN
   const [dataArahAngin, setDataArahAngin] = useState([]);
   const [dataKecepatanAngin, setDataKecepatanAngin] = useState([]);
-  const [dataKecepatanAnginMaksimum, setDataKecepatanAnginMaksimum] = useState([]);
+  const [dataKecepatanAnginMaksimum, setDataKecepatanAnginMaksimum] = useState(
+    []
+  );
 
   // SUHU
   const [dataSuhu, setDataSuhu] = useState([]);
@@ -245,7 +284,20 @@ const DataMonitoring = () => {
     for: 24,
   });
 
-  const [months] = useState(["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]);
+  const [months] = useState([
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "Mei",
+    "Jun",
+    "Jul",
+    "Agu",
+    "Sep",
+    "Okt",
+    "Nov",
+    "Des",
+  ]);
 
   const resetSliceIndex = () => {
     if (windowSize.width <= 768) {
@@ -289,7 +341,11 @@ const DataMonitoring = () => {
       const previousMonth = date.getMonth(); // Get the month of the date after subtracting one month
       const previousYear = date.getFullYear(); // Get the year of the date after subtracting one month
 
-      const totalDaysInMonth = new Date(previousYear, previousMonth, 0).getDate();
+      const totalDaysInMonth = new Date(
+        previousYear,
+        previousMonth,
+        0
+      ).getDate();
 
       date.setMonth(previousMonth - 1); // Subtract one month from the current date
 
@@ -301,13 +357,18 @@ const DataMonitoring = () => {
       const minute = date.getMinutes().toString().padStart(2, "0");
 
       // const formattedDate = `${day} - ${month} - ${year}`;
-      const formattedDate = `${day} ${months.at(month - 1)} ${year} ${hour}:${minute}`;
+      const formattedDate = `${day} ${months.at(
+        month - 1
+      )} ${year} ${hour}:${minute}`;
 
       return {
         lastMonth: formattedDate,
         totalDays: totalDaysInMonth,
         day: day,
-        month: (parseInt(month) - 1).toString().length === 1 ? `0${(parseInt(month) - 1).toString()}` : (parseInt(month) - 1).toString(),
+        month:
+          (parseInt(month) - 1).toString().length === 1
+            ? `0${(parseInt(month) - 1).toString()}`
+            : (parseInt(month) - 1).toString(),
         year: year,
       };
     };
@@ -316,18 +377,114 @@ const DataMonitoring = () => {
     setUpdated(monthData.lastMonth);
 
     if (lonLat.lon && lonLat.lat) {
-      getPrakiraanMonitoring(lonLat.lon, lonLat.lat, monthData.day, monthData.month, monthData.year, "GHI", "ghi-harian").then((res) => setDataGhi(res));
-      getPrakiraanMonitoring(lonLat.lon, lonLat.lat, monthData.day, monthData.month, monthData.year, "PV Output", "pv-output-harian").then((res) => setDataIndeksKebeningan(res));
-      getPrakiraanMonitoring(lonLat.lon, lonLat.lat, monthData.day, monthData.month, monthData.year, "Arah Angin", "arah-angin-harian").then((res) => setDataArahAngin(res));
-      getPrakiraanMonitoring(lonLat.lon, lonLat.lat, monthData.day, monthData.month, monthData.year, "Angin", "kecepatan-angin-harian").then((res) => setDataKecepatanAngin(res));
-      getPrakiraanMonitoring(lonLat.lon, lonLat.lat, monthData.day, monthData.month, monthData.year, "Angin Maksimum", "kecepatan-angin-maksimum-harian").then((res) => setDataKecepatanAnginMaksimum(res));
-      getPrakiraanMonitoring(lonLat.lon, lonLat.lat, monthData.day, monthData.month, monthData.year, "Suhu", "temperature-harian").then((res) => setDataSuhu(res));
-      getPrakiraanMonitoring(lonLat.lon, lonLat.lat, monthData.day, monthData.month, monthData.year, "Tutupan Awan Total", "tutupan-awan-total-harian").then((res) => setDataTutupanAwanTotal(res));
-      getPrakiraanMonitoring(lonLat.lon, lonLat.lat, monthData.day, monthData.month, monthData.year, "Tutupan Awan Tinggi", "tutupan-awan-tinggi-harian").then((res) => setDataTutupanAwanTinggi(res));
-      getPrakiraanMonitoring(lonLat.lon, lonLat.lat, monthData.day, monthData.month, monthData.year, "Tutupan Awan Tinggi", "tutupan-awan-menengah-harian").then((res) => setDataTutupanAwanMenengah(res));
-      getPrakiraanMonitoring(lonLat.lon, lonLat.lat, monthData.day, monthData.month, monthData.year, "Tutupan Awan Tinggi", "tutupan-awan-rendah-harian").then((res) => setDataTutupanAwanRendah(res));
-      getPrakiraanMonitoring(lonLat.lon, lonLat.lat, monthData.day, monthData.month, monthData.year, "Tutupan Awan Tinggi", "curah-hujan-harian").then((res) => setDataCurahHujan(res));
-      getPrakiraanMonitoring(lonLat.lon, lonLat.lat, monthData.day, monthData.month, monthData.year, "Temperature Maksimum", "temperature-maksimum-harian").then((res) => setDataSuhuMaksimum(res));
+      getPrakiraanMonitoring(
+        lonLat.lon,
+        lonLat.lat,
+        monthData.day,
+        monthData.month,
+        monthData.year,
+        "GHI",
+        "ghi-harian"
+      ).then((res) => setDataGhi(res));
+      getPrakiraanMonitoring(
+        lonLat.lon,
+        lonLat.lat,
+        monthData.day,
+        monthData.month,
+        monthData.year,
+        "PV Output",
+        "pv-output-harian"
+      ).then((res) => setDataIndeksKebeningan(res));
+      getPrakiraanMonitoring(
+        lonLat.lon,
+        lonLat.lat,
+        monthData.day,
+        monthData.month,
+        monthData.year,
+        "Arah Angin",
+        "arah-angin-harian"
+      ).then((res) => setDataArahAngin(res));
+      getPrakiraanMonitoring(
+        lonLat.lon,
+        lonLat.lat,
+        monthData.day,
+        monthData.month,
+        monthData.year,
+        "Angin",
+        "kecepatan-angin-harian"
+      ).then((res) => setDataKecepatanAngin(res));
+      getPrakiraanMonitoring(
+        lonLat.lon,
+        lonLat.lat,
+        monthData.day,
+        monthData.month,
+        monthData.year,
+        "Angin Maksimum",
+        "kecepatan-angin-maksimum-harian"
+      ).then((res) => setDataKecepatanAnginMaksimum(res));
+      getPrakiraanMonitoring(
+        lonLat.lon,
+        lonLat.lat,
+        monthData.day,
+        monthData.month,
+        monthData.year,
+        "Suhu",
+        "temperature-harian"
+      ).then((res) => setDataSuhu(res));
+      getPrakiraanMonitoring(
+        lonLat.lon,
+        lonLat.lat,
+        monthData.day,
+        monthData.month,
+        monthData.year,
+        "Tutupan Awan Total",
+        "tutupan-awan-total-harian"
+      ).then((res) => setDataTutupanAwanTotal(res));
+      getPrakiraanMonitoring(
+        lonLat.lon,
+        lonLat.lat,
+        monthData.day,
+        monthData.month,
+        monthData.year,
+        "Tutupan Awan Tinggi",
+        "tutupan-awan-tinggi-harian"
+      ).then((res) => setDataTutupanAwanTinggi(res));
+      getPrakiraanMonitoring(
+        lonLat.lon,
+        lonLat.lat,
+        monthData.day,
+        monthData.month,
+        monthData.year,
+        "Tutupan Awan Tinggi",
+        "tutupan-awan-menengah-harian"
+      ).then((res) => setDataTutupanAwanMenengah(res));
+      getPrakiraanMonitoring(
+        lonLat.lon,
+        lonLat.lat,
+        monthData.day,
+        monthData.month,
+        monthData.year,
+        "Tutupan Awan Tinggi",
+        "tutupan-awan-rendah-harian"
+      ).then((res) => setDataTutupanAwanRendah(res));
+      getPrakiraanMonitoring(
+        lonLat.lon,
+        lonLat.lat,
+        monthData.day,
+        monthData.month,
+        monthData.year,
+        "Tutupan Awan Tinggi",
+        "curah-hujan-harian"
+      ).then((res) => setDataCurahHujan(res));
+      getPrakiraanMonitoring(
+        lonLat.lon,
+        lonLat.lat,
+        monthData.day,
+        monthData.month,
+        monthData.year,
+        "Temperature Maksimum",
+        "temperature-maksimum-harian"
+      ).then((res) => setDataSuhuMaksimum(res));
     }
   }, [lonLat]);
 
@@ -341,13 +498,25 @@ const DataMonitoring = () => {
     if (dataGhi.length > 0 || dataIndeksKebeningan.length > 0) {
       //  setDataGhi((prev) => prev.slice(slicePotensi.start, slicePotensi.finish))
       const ghi = dataGhi.slice(slicePotensi.start, slicePotensi.finish);
-      const pv = dataIndeksKebeningan.slice(sliceIndeksKebeningan.start, sliceIndeksKebeningan.finish);
+      const pv = dataIndeksKebeningan.slice(
+        sliceIndeksKebeningan.start,
+        sliceIndeksKebeningan.finish
+      );
 
       setDataChartGhi(ghi);
-      setNewHour(ghi.map((item) => item.hour.map((hr) => `${hr}||${item.name}`)).reduce((acc, cur) => acc.concat(cur), []));
+      setNewHour(
+        ghi
+          .map((item) => item.hour.map((hr) => `${hr}||${item.name}`))
+          .reduce((acc, cur) => acc.concat(cur), [])
+      );
       setDataChartPv(pv);
     }
-  }, [slicePotensi.finish, dataGhi, dataIndeksKebeningan, sliceIndeksKebeningan.finish]);
+  }, [
+    slicePotensi.finish,
+    dataGhi,
+    dataIndeksKebeningan,
+    sliceIndeksKebeningan.finish,
+  ]);
 
   useEffect(() => {
     if (
@@ -386,74 +555,123 @@ const DataMonitoring = () => {
         {
           id: 2,
           name: "Angin (m/s)",
-          data: dataKecepatanAngin[tableDataOption].data[0].data.map((item) => parseFloat(parseFloat(item).toFixed(1))),
-          dataDir: dataArahAngin[tableDataOption].data[0].data.map((item) => item),
+          data: dataKecepatanAngin[tableDataOption].data[0].data.map((item) =>
+            parseFloat(parseFloat(item).toFixed(1))
+          ),
+          dataDir: dataArahAngin[tableDataOption].data[0].data.map(
+            (item) => item
+          ),
           border: false,
         },
         {
           id: 3,
           name: "Kecepatan Maksimum (m/s)",
-          data: dataKecepatanAnginMaksimum[tableDataOption].data[0].data.map((item) => item),
+          data: dataKecepatanAnginMaksimum[tableDataOption].data[0].data.map(
+            (item) => item
+          ),
           border: true,
         },
         {
           id: 4,
           name: "Suhu Maksimum (°C)",
-          data: dataSuhuMaksimum[tableDataOption].data[0].data.map((item) => parseFloat(parseFloat(item).toFixed(1))),
+          data: dataSuhuMaksimum[tableDataOption].data[0].data.map((item) =>
+            parseFloat(parseFloat(item).toFixed(1))
+          ),
           border: false,
         },
         {
           id: 5,
           name: "Suhu (°C)",
-          data: dataSuhu[tableDataOption].data[0].data.map((item) => parseFloat(parseFloat(item).toFixed(1))),
+          data: dataSuhu[tableDataOption].data[0].data.map((item) =>
+            parseFloat(parseFloat(item).toFixed(1))
+          ),
           border: true,
         },
         {
           id: 6,
           name: "Tutupan Awan (%)",
-          data: dataTutupanAwanTotal[tableDataOption]?.data[0].data.map((item) =>
-            // parseFloat(parseFloat(item).toFixed(1))
-            Math.round(item)
+          data: dataTutupanAwanTotal[tableDataOption]?.data[0].data.map(
+            (item) =>
+              // parseFloat(parseFloat(item).toFixed(1))
+              Math.round(item)
           ),
           border: false,
         },
         {
           id: 7,
           name: "Tinggi",
-          data: dataTutupanAwanTinggi[tableDataOption]?.data[0].data.map((item) =>
-            // parseFloat(parseFloat(item).toFixed(1))
-            Math.round(item)
+          data: dataTutupanAwanTinggi[tableDataOption]?.data[0].data.map(
+            (item) =>
+              // parseFloat(parseFloat(item).toFixed(1))
+              Math.round(item)
           ),
           border: false,
         },
         {
           id: 8,
           name: "Menengah",
-          data: dataTutupanAwanMenengah[tableDataOption]?.data[0].data.map((item) =>
-            // parseFloat(parseFloat(item).toFixed(1))
-            Math.round(item)
+          data: dataTutupanAwanMenengah[tableDataOption]?.data[0].data.map(
+            (item) =>
+              // parseFloat(parseFloat(item).toFixed(1))
+              Math.round(item)
           ),
           border: false,
         },
         {
           id: 9,
           name: "Rendah",
-          data: dataTutupanAwanRendah[tableDataOption]?.data[0].data.map((item) =>
-            // parseFloat(parseFloat(item).toFixed(1))
-            Math.round(item)
+          data: dataTutupanAwanRendah[tableDataOption]?.data[0].data.map(
+            (item) =>
+              // parseFloat(parseFloat(item).toFixed(1))
+              Math.round(item)
           ),
           border: true,
         },
         {
           id: 10,
           name: "Curah Hujan (mm)",
-          data: dataCurahHujan[tableDataOption].data[0].data.map((item) => parseFloat(parseFloat(item).toFixed(1))),
+          data: dataCurahHujan[tableDataOption].data[0].data.map((item) =>
+            parseFloat(parseFloat(item).toFixed(1))
+          ),
           border: false,
         },
       ]);
       // setTableData([]);
     }
-  }, [subscription, currentTime, dataIndeksKebeningan, tableDataOption, dataArahAngin, dataKecepatanAngin, dataSuhu, dataCurahHujan, dataTutupanAwanTotal, dataTutupanAwanTinggi, dataTutupanAwanMenengah, dataTutupanAwanRendah]);
+  }, [
+    subscription,
+    currentTime,
+    dataIndeksKebeningan,
+    tableDataOption,
+    dataArahAngin,
+    dataKecepatanAngin,
+    dataSuhu,
+    dataCurahHujan,
+    dataTutupanAwanTotal,
+    dataTutupanAwanTinggi,
+    dataTutupanAwanMenengah,
+    dataTutupanAwanRendah,
+  ]);
+
+  const isSubscribePrakiraan = useMemo(() => {
+    const today = new Date().toISOString().split("T")[0];
+
+    return (
+      listPayment.filter((f) => {
+        const isNotExpired =
+          new Date(f.exp).toISOString().split("T")[0] > today;
+        const isPrakiraan =
+          f?.plan?.description === "For Monitoring" ||
+          f?.plan?.name === "Forecast";
+        const isSuccess = f?.status?.toLowerCase() === "success";
+        const isLocationMatch =
+          parseFloat(f.lat.toFixed(1)) === lonLat.lat &&
+          parseFloat(f.lon.toFixed(1)) === lonLat.lon;
+
+        return isNotExpired && isPrakiraan && isSuccess && isLocationMatch;
+      }) || []
+    );
+  }, [listPayment, lonLat]);
 
   return (
     <div className="font-poppins bg-[#F7FFF4] px-[2%] pt-10  2xl:container mx-auto">
@@ -474,7 +692,9 @@ const DataMonitoring = () => {
               if (!user) {
                 dispatch(setLoginPopup(true));
               } else if (user && subscription) {
-                navigate(`/detail/data-historis?long=${lonLat?.lon}&lat=${lonLat?.lat}&region=${lonLat?.region}&province=${lonLat?.province}`);
+                navigate(
+                  `/detail/data-historis?long=${lonLat?.lon}&lat=${lonLat?.lat}&region=${lonLat?.region}&province=${lonLat?.province}`
+                );
               }
             }}
           >
@@ -485,14 +705,21 @@ const DataMonitoring = () => {
             onClick={() => {
               if (!user) {
                 dispatch(setLoginPopup(true));
-              } else if (user && subscription) {
-                navigate(`/detail/data-prakiraan?long=${lonLat?.lon}&lat=${lonLat?.lat}&region=${lonLat?.region}&province=${lonLat?.province}`);
+              } else if (user && isSubscribePrakiraan.length) {
+                navigate(
+                  `/detail/data-prakiraan?long=${lonLat?.lon}&lat=${lonLat?.lat}&region=${lonLat?.region}&province=${lonLat?.province}`
+                );
               }
             }}
           >
-            Data Prakiraan
+            Data Prakiraan{" "}
+            {isSubscribePrakiraan.length && user ? null : <AiOutlineLock />}
           </button>
-          <button className={`text-black px-4 pt-1 border-b-4 border-b-[#1F8A70] flex gap-1 items-center pb-6 hover:opacity-60 duration-150`}>Monitoring</button>
+          <button
+            className={`text-black px-4 pt-1 border-b-4 border-b-[#1F8A70] flex gap-1 items-center pb-6 hover:opacity-60 duration-150`}
+          >
+            Monitoring
+          </button>
           <div className="w-full border-b-2 absolute bottom-2" />
         </div>
 
@@ -503,7 +730,7 @@ const DataMonitoring = () => {
         <div className="pb-8">
           <div className="flex justify-between items-center">
             <p className="font-medium">Monitoring</p>
-            <p className="text-sm">Diperbaharui tanggal {updated}</p>
+            <p className="text-sm">Diperbaharui tanggal {fDate(new Date())}</p>
           </div>
 
           {/* Maps Prakiraan */}
@@ -512,20 +739,35 @@ const DataMonitoring = () => {
               <p className="text-xl">Maps</p>
             </div>
             <div className="h-[329px]">
-              <DetailMap center={[parseFloat(urlParams.get("lat")), parseFloat(urlParams.get("long"))]} zoom={13} data={lonLat} />
+              <DetailMap
+                center={[
+                  parseFloat(urlParams.get("lat")),
+                  parseFloat(urlParams.get("long")),
+                ]}
+                zoom={13}
+                data={lonLat}
+              />
             </div>
           </div>
 
           <div className="bg-[#EBFFE4] box-shadow rounded p-2 mt-4">
-            <p className="text-center text-xl ">Global Horizontal Irradiance (GHI)</p>
+            <p className="text-center text-xl ">
+              Global Horizontal Irradiance (GHI)
+            </p>
             <div className="flex mt-4 relative">
               {/* Chart */}
-              <div className={`absolute -bottom-4 z-[5] w-full ${dataChartGhi.length === 0 && "hidden"}`}>
+              <div
+                className={`absolute -bottom-4 z-[5] w-full ${
+                  dataChartGhi.length === 0 && "hidden"
+                }`}
+              >
                 <LineChart
                   data={[
                     {
                       name: "GHI",
-                      data: dataChartGhi.map((item) => item.data[0].data).reduce((acc, cur) => acc.concat(cur), []),
+                      data: dataChartGhi
+                        .map((item) => item.data[0].data)
+                        .reduce((acc, cur) => acc.concat(cur), []),
                     },
                   ]}
                   categories={newHour.map((f, i) => {
@@ -551,16 +793,36 @@ const DataMonitoring = () => {
                   }}
                   tooltip={{
                     x: {
-                      formatter: (seriesName, { series, seriesIndex, dataPointIndex, w }) => {
-                        return `Pukul ${newHour[dataPointIndex].split("||")[0]}.00`;
+                      formatter: (
+                        seriesName,
+                        { series, seriesIndex, dataPointIndex, w }
+                      ) => {
+                        return `Pukul ${
+                          newHour[dataPointIndex].split("||")[0]
+                        }.00`;
                       },
                     },
                   }}
                 />
-                <div className="absolute bottom-[25px] left-0.5 text-[8px] font-bold">Jam ({lonLat.utc === 7 ? "WIB" : lonLat.utc === 8 ? "WITA" : lonLat.utc === 9 ? "WIT" : "Jam"})</div>
+                <div className="absolute bottom-[25px] left-0.5 text-[8px] font-bold">
+                  Jam (
+                  {lonLat.utc === 7
+                    ? "WIB"
+                    : lonLat.utc === 8
+                    ? "WITA"
+                    : lonLat.utc === 9
+                    ? "WIT"
+                    : "Jam"}
+                  )
+                </div>
               </div>
               {dataChartGhi.map((item, index) => (
-                <div key={index} className={`text-center relative ${index === 0 ? "w-[112%]" : "w-[100%]"}`}>
+                <div
+                  key={index}
+                  className={`text-center relative ${
+                    index === 0 ? "w-[112%]" : "w-[100%]"
+                  }`}
+                >
                   {/* Carousel */}
                   <div className="bg-[#00AF50] flex justify-between items-center">
                     {index === 0 ? (
@@ -584,7 +846,11 @@ const DataMonitoring = () => {
                     {index === slicePotensi.for - 1 ? (
                       <button
                         className="disabled:opacity-30 hover:opacity-30"
-                        disabled={item.name === dataGhi[dataGhi.length - 1].name ? true : false}
+                        disabled={
+                          item.name === dataGhi[dataGhi.length - 1].name
+                            ? true
+                            : false
+                        }
                         onClick={() => {
                           setSlicePotensi({
                             ...slicePotensi,
@@ -618,8 +884,14 @@ const DataMonitoring = () => {
               {tableData.map((item, index) => (
                 <div
                   key={index}
-                  className={`flex justify-between pb-2 relative ${item.border ? "border-b-2 border-[#D9D9D9]" : ""}
-            ${item.id === 4 || item.id === 5 || item.id === 6 ? "h-[150px] flex items-center" : ""}
+                  className={`flex justify-between pb-2 relative ${
+                    item.border ? "border-b-2 border-[#D9D9D9]" : ""
+                  }
+            ${
+              item.id === 4 || item.id === 5 || item.id === 6
+                ? "h-[150px] flex items-center"
+                : ""
+            }
             `}
                 >
                   {index === 0 && (
@@ -658,9 +930,11 @@ const DataMonitoring = () => {
                       className="absolute w-[79.5%]  top-0 right-[3%]"
                       style={{
                         padding: `0 ${
-                          sliceIndex.end - sliceIndex.start === 3 && sliceIndex.for === 3
+                          sliceIndex.end - sliceIndex.start === 3 &&
+                          sliceIndex.for === 3
                             ? 50
-                            : sliceIndex.end - sliceIndex.start === 6 && sliceIndex.for === 6
+                            : sliceIndex.end - sliceIndex.start === 6 &&
+                              sliceIndex.for === 6
                             ? 20
                             : item.data.length <= sliceIndex.end
                             ? (sliceIndex.end - item.data.length) * 10
@@ -668,32 +942,83 @@ const DataMonitoring = () => {
                         }px`,
                       }}
                     >
-                      <LineChartCustome height={100} data={item.data.length > sliceIndex.for ? item.data.slice(sliceIndex.start, sliceIndex.end) : item.data} colors={item.id === 4 ? "#DD2000" : "#1DB5DB"} />
+                      <LineChartCustome
+                        height={100}
+                        data={
+                          item.data.length > sliceIndex.for
+                            ? item.data.slice(sliceIndex.start, sliceIndex.end)
+                            : item.data
+                        }
+                        colors={item.id === 4 ? "#DD2000" : "#1DB5DB"}
+                      />
                     </div>
                   ) : null}
-                  <div className={`w-[15%] text-xs font-bold flex items-center pl-4 ${index === 0 ? "bg-[#00AF50] py-2" : ""}  ${item.id === 5 || item.id === 6 || item.id === 2 ? "cursor-pointer hover:opacity-70 duration-150" : ""}}`}>
+                  <div
+                    className={`w-[15%] text-xs font-bold flex items-center pl-4 ${
+                      index === 0 ? "bg-[#00AF50] py-2" : ""
+                    }  ${
+                      item.id === 5 || item.id === 6 || item.id === 2
+                        ? "cursor-pointer hover:opacity-70 duration-150"
+                        : ""
+                    }}`}
+                  >
                     {item.name}
                   </div>
-                  {(item.data.length > sliceIndex.for ? item.data.slice(sliceIndex.start, sliceIndex.end) : item.data).map((item2, index2) => (
-                    <div key={index2} className={`flex-grow flex items-center flex-col justify-center ${index === 0 ? `bg-[#00AF50] py-2 font-semibold` : ``}`}>
+                  {(item.data.length > sliceIndex.for
+                    ? item.data.slice(sliceIndex.start, sliceIndex.end)
+                    : item.data
+                  ).map((item2, index2) => (
+                    <div
+                      key={index2}
+                      className={`flex-grow flex items-center flex-col justify-center ${
+                        index === 0 ? `bg-[#00AF50] py-2 font-semibold` : ``
+                      }`}
+                    >
                       {item.id === 2 ? (
                         <div className="flex flex-col w-full gap-1 pt-4 items-center font-bold text-base">
                           <div
                             style={{
-                              rotate: `${!item.dataDir.slice(sliceIndex.start, sliceIndex.end)[index2] ? `0deg` : `-${parseFloat(item.dataDir.slice(sliceIndex.start, sliceIndex.end)[index2])}deg`}`,
+                              rotate: `${
+                                !item.dataDir.slice(
+                                  sliceIndex.start,
+                                  sliceIndex.end
+                                )[index2]
+                                  ? `0deg`
+                                  : `-${parseFloat(
+                                      item.dataDir.slice(
+                                        sliceIndex.start,
+                                        sliceIndex.end
+                                      )[index2]
+                                    )}deg`
+                              }`,
                             }}
                           >
                             <FaLocationArrow className="-rotate-45" />
                           </div>
-                          <p className="">{item2 ? parseFloat(item2)?.toFixed(1) : 0}</p>
+                          <p className="">
+                            {item2 ? parseFloat(item2)?.toFixed(1) : 0}
+                          </p>
                         </div>
                       ) : item.id === 3 ? (
-                        <div className="flex flex-col w-[40px] gap-1 justify-center py-2 items-center text-sm font-medium">{item2 ? parseFloat(item2)?.toFixed(1) : 0}</div>
-                      ) : item.id === 4 || item.id === 5 ? null : item.id === 6 ? null : item.id === 7 || item.id === 8 || item.id === 9 ? (
-                        <div className="text-center w-[30px] text-sm font-bold">{item2 ? item2 : 0}</div>
+                        <div className="flex flex-col w-[40px] gap-1 justify-center py-2 items-center text-sm font-medium">
+                          {item2 ? parseFloat(item2)?.toFixed(1) : 0}
+                        </div>
+                      ) : item.id === 4 || item.id === 5 ? null : item.id ===
+                        6 ? null : item.id === 7 ||
+                        item.id === 8 ||
+                        item.id === 9 ? (
+                        <div className="text-center w-[30px] text-sm font-bold">
+                          {item2 ? item2 : 0}
+                        </div>
                       ) : item.id === 10 ? (
                         <div className="flex flex-col w-[20px] h-full justify-center items-center text-sm font-bold">
-                          <CustomBarChart width="100%" data={item2} height={"130"} maxCount={5} enabled={false} />
+                          <CustomBarChart
+                            width="100%"
+                            data={item2}
+                            height={"130"}
+                            maxCount={5}
+                            enabled={false}
+                          />
                           <p className="text-xs text-black/60">{item2}</p>
                         </div>
                       ) : (
@@ -710,12 +1035,18 @@ const DataMonitoring = () => {
             <p className="text-center text-xl ">PV Output</p>
             <div className="flex mt-4 relative">
               {/* Chart */}
-              <div className={`absolute -bottom-4 z-[5] w-full ${!dataChartPv.length && "hidden"}`}>
+              <div
+                className={`absolute -bottom-4 z-[5] w-full ${
+                  !dataChartPv.length && "hidden"
+                }`}
+              >
                 <LineChart
                   data={[
                     {
                       name: "Pv Output",
-                      data: dataChartPv.map((item) => item.data[0].data).reduce((acc, cur) => acc.concat(cur), []),
+                      data: dataChartPv
+                        .map((item) => item.data[0].data)
+                        .reduce((acc, cur) => acc.concat(cur), []),
                     },
                   ]}
                   categories={newHour.map((f, i) => {
@@ -740,23 +1071,47 @@ const DataMonitoring = () => {
                   }}
                   tooltip={{
                     x: {
-                      formatter: (seriesName, { series, seriesIndex, dataPointIndex, w }) => {
-                        return `Pukul ${newHour[dataPointIndex].split("||")[0]}.00`;
+                      formatter: (
+                        seriesName,
+                        { series, seriesIndex, dataPointIndex, w }
+                      ) => {
+                        return `Pukul ${
+                          newHour[dataPointIndex].split("||")[0]
+                        }.00`;
                       },
                     },
                   }}
                 />
-                <div className="absolute bottom-[25px] left-0.5 text-[8px] font-bold">Jam ({lonLat.utc === 7 ? "WIB" : lonLat.utc === 8 ? "WITA" : lonLat.utc === 9 ? "WIT" : "Jam"})</div>
+                <div className="absolute bottom-[25px] left-0.5 text-[8px] font-bold">
+                  Jam (
+                  {lonLat.utc === 7
+                    ? "WIB"
+                    : lonLat.utc === 8
+                    ? "WITA"
+                    : lonLat.utc === 9
+                    ? "WIT"
+                    : "Jam"}
+                  )
+                </div>
               </div>
 
               {dataChartPv.map((item, index) => (
-                <div key={index} className={`text-center relative ${index === 0 ? "w-[112%]" : "w-[100%]"}`}>
+                <div
+                  key={index}
+                  className={`text-center relative ${
+                    index === 0 ? "w-[112%]" : "w-[100%]"
+                  }`}
+                >
                   {/* Carousel */}
                   <div className="bg-[#00AF50] flex justify-between items-center">
                     {index === 0 ? (
                       <button
                         className="disabled:opacity-30 hover:opacity-30"
-                        disabled={item.name === dataIndeksKebeningan[0].name ? true : false}
+                        disabled={
+                          item.name === dataIndeksKebeningan[0].name
+                            ? true
+                            : false
+                        }
                         onClick={() => {
                           setSliceIndeksKebeningan({
                             ...sliceIndeksKebeningan,
@@ -774,7 +1129,13 @@ const DataMonitoring = () => {
                     {index === sliceIndeksKebeningan.for - 1 ? (
                       <button
                         className="disabled:opacity-30 hover:opacity-30"
-                        disabled={item.name === dataIndeksKebeningan[dataIndeksKebeningan.length - 1].name ? true : false}
+                        disabled={
+                          item.name ===
+                          dataIndeksKebeningan[dataIndeksKebeningan.length - 1]
+                            .name
+                            ? true
+                            : false
+                        }
                         onClick={() => {
                           setSliceIndeksKebeningan({
                             ...sliceIndeksKebeningan,
@@ -802,7 +1163,15 @@ const DataMonitoring = () => {
 
 export default DataMonitoring;
 
-const getPrakiraanMonitoring = async (longitude, latitude, day, month, year, title, nameindex) => {
+const getPrakiraanMonitoring = async (
+  longitude,
+  latitude,
+  day,
+  month,
+  year,
+  title,
+  nameindex
+) => {
   const url = `${process.env.REACT_APP_URL_API}/search/histori/bulanan`;
   const body = {
     distance: "10km",
@@ -838,7 +1207,9 @@ const getPrakiraanMonitoring = async (longitude, latitude, day, month, year, tit
         };
       }
 
-      separatedData[dateKey].data[0].data.push(parseFloat(parseFloat(value).toFixed(1)));
+      separatedData[dateKey].data[0].data.push(
+        parseFloat(parseFloat(value).toFixed(1))
+      );
       separatedData[dateKey].hour.push(jam);
     });
 

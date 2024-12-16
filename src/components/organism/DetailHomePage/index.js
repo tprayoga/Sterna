@@ -12,6 +12,7 @@ import {
   getHistorisSuhuMaksimum,
 } from "@hooks/DataHook";
 import { AverageData } from "@hooks/ManipulationData";
+import { fDate, fDateTime } from "@utils/format-date";
 
 const { useDispatch, useSelector } = require("react-redux");
 const { useNavigate } = require("react-router-dom");
@@ -87,7 +88,8 @@ const DetailHomePage = ({
     const fetchPayment = async () => {
       try {
         const { data } = await axios.get(
-          `${process.env.REACT_APP_URL_API}/payment/user`,
+          // `${process.env.REACT_APP_URL_API}/payment/user`,
+          `${process.env.REACT_APP_URL_API}/subscriptions/user/${user?.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -95,7 +97,18 @@ const DetailHomePage = ({
           }
         );
 
-        setListPayment(data);
+        const newData = data.map((item) => ({
+          ...item,
+          exp: item.end_date,
+          id: item.id,
+          lat: Number(item.location.lat),
+          lon: Number(item.location.lon),
+          paket: parseInt(item?.plan?.description) || 14,
+          created_at: fDateTime(item.created_at, "yyyy-MM-dd HH:mm:ss"),
+          updated_at: fDateTime(item.updated_at, "yyyy-MM-dd HH:mm:ss"),
+        }));
+
+        setListPayment(newData);
       } catch (error) {
         console.log(error);
       }
@@ -110,10 +123,17 @@ const DetailHomePage = ({
     if (lonLat) {
       // set checking payment
       for (const payment of listPayment) {
+        const today = new Date().toISOString().split("T")[0]; // Mendapatkan tanggal hari ini dalam format yyyy-mm-dd
+        const paymentExp = new Date(payment.exp).toISOString().split("T")[0]; // Konversi exp ke format yyyy-mm-dd
+
         if (
-          payment.lat === lonLat.Lat &&
-          payment.lon === lonLat.Lon &&
-          payment.status === "Success"
+          parseFloat(payment.lat.toFixed(1)) ===
+            parseFloat(lonLat.Lat.toFixed(1)) &&
+          parseFloat(payment.lon.toFixed(1)) ===
+            parseFloat(lonLat.Lon.toFixed(1)) &&
+          payment.status.toLowerCase() === "success" &&
+          payment?.plan?.name !== "Monitoring" &&
+          paymentExp > today
         ) {
           setDataPayment(payment);
           setCheckPayment(true);
@@ -238,35 +258,64 @@ const DetailHomePage = ({
       const longitude = parseFloat(parseFloat(dataPayment.lon).toFixed(1));
       const latitude = parseFloat(parseFloat(dataPayment.lat).toFixed(1));
 
-      getDailyPrakiraan("ghi-harian", longitude, latitude, "GHI").then((res) =>
-        setDataGhi(res.length > 0 ? res.slice(0, dataPayment.paket) : res)
-      );
-      getDailyPrakiraan("temperature-harian", longitude, latitude, "GHI").then(
-        (res) =>
-          setDataSuhu(res.length > 0 ? res.slice(0, dataPayment.paket) : res)
-      );
-      getDailyPrakiraan(
-        "tutupan-awan-total-harian",
+      getDailyPrakiraanData(
+        "DSWRF",
         longitude,
         latitude,
-        "GHI"
-      ).then((res) =>
-        setDataTutupanAwan(
-          res.length > 0 ? res.slice(0, dataPayment.paket) : res
-        )
-      );
-      getDailyPrakiraan("curah-hujan-harian", longitude, latitude, "GHI").then(
-        (res) =>
-          setDataCurahHujanPrakiraan(
-            res.length > 0 ? res.slice(0, dataPayment.paket) : res
-          )
-      );
-      getDailyPrakiraan("pv-output-harian", longitude, latitude, "GHI").then(
-        (res) =>
-          setDataIndeksKebeningan(
-            res.length > 0 ? res.slice(0, dataPayment.paket) : res
-          )
-      );
+        "GHI",
+        dataPayment?.paket
+      ).then(setDataGhi);
+      getDailyPrakiraanData(
+        "TMAX",
+        longitude,
+        latitude,
+        "Suhu Maksimum",
+        dataPayment?.paket || 7
+      ).then(setDataSuhu);
+      getDailyPrakiraanData(
+        "TCDC",
+        longitude,
+        latitude,
+        "Tutupan Awan Total",
+        dataPayment?.paket || 7
+      ).then(setDataTutupanAwan);
+      getDailyPrakiraanData(
+        "APCP",
+        longitude,
+        latitude,
+        "Curah Hujan",
+        dataPayment?.paket || 7
+      ).then(setDataCurahHujanPrakiraan);
+
+      // getDailyPrakiraan("ghi-harian", longitude, latitude, "GHI").then((res) =>
+      //   setDataGhi(res.length > 0 ? res.slice(0, dataPayment.paket) : res)
+      // );
+      // getDailyPrakiraan("temperature-harian", longitude, latitude, "GHI").then(
+      //   (res) =>
+      //     setDataSuhu(res.length > 0 ? res.slice(0, dataPayment.paket) : res)
+      // );
+      // getDailyPrakiraan(
+      //   "tutupan-awan-total-harian",
+      //   longitude,
+      //   latitude,
+      //   "GHI"
+      // ).then((res) =>
+      //   setDataTutupanAwan(
+      //     res.length > 0 ? res.slice(0, dataPayment.paket) : res
+      //   )
+      // );
+      // getDailyPrakiraan("curah-hujan-harian", longitude, latitude, "GHI").then(
+      //   (res) =>
+      //     setDataCurahHujanPrakiraan(
+      //       res.length > 0 ? res.slice(0, dataPayment.paket) : res
+      //     )
+      // );
+      // getDailyPrakiraan("pv-output-harian", longitude, latitude, "GHI").then(
+      //   (res) =>
+      //     setDataIndeksKebeningan(
+      //       res.length > 0 ? res.slice(0, dataPayment.paket) : res
+      //     )
+      // );
     }
   }, [dataPayment, checkPayment, listPayment]);
 
@@ -286,8 +335,8 @@ const DetailHomePage = ({
       dataGhi.length > 0 &&
       dataSuhu.length > 0 &&
       dataTutupanAwan.length > 0 &&
-      dataCurahHujanPrakiraan.length > 0 &&
-      dataIndeksKebeningan.length > 0
+      dataCurahHujanPrakiraan.length > 0
+      // dataIndeksKebeningan.length > 0
     ) {
       const ghi = dataGhi.length !== 1 ? getRataRataPrakiraan(dataGhi) : "-";
       const suhu = dataSuhu.length !== 1 ? getRataRataPrakiraan(dataSuhu) : "-";
@@ -565,6 +614,92 @@ const getDailyPrakiraan = async (nameIndex, lon, lat, title, sliceFinish) => {
     ];
   }
 };
+
+const getDailyPrakiraanData = async (type, lon, lat, title, periode = 7) => {
+  const now = new Date(); // Tanggal sekarang
+  now.setHours(0, 0, 0, 0); // Set jam ke 00:00:00
+
+  const totalDays = periode; // Total hari yang akan diambil
+
+  // Tambahkan ?? hari ke startDate
+  const endDateObj = new Date(now);
+  endDateObj.setDate(endDateObj.getDate() + totalDays);
+
+  const startDate = now.toISOString(); // Konversi ke format ISO untuk startDate
+  const endDate = endDateObj.toISOString(); // Konversi ke format ISO untuk endDate
+
+  try {
+    const { data } = await axios.post(
+      `${process.env.REACT_APP_URL_API_3}/query`,
+      {
+        type: type,
+        latitude: lat,
+        longitude: lon,
+        starttime: startDate,
+        endtime: endDate,
+      }
+    );
+
+    const newData = data.data.map((item) => ({
+      ...item,
+      datetime: new Date(`${item.datetime}.000Z`),
+    }));
+
+    const transformedData = newData
+      .reduce((result, item) => {
+        const hour = getHour24(item.datetime);
+        const date = fDate(item.datetime);
+
+        let group = result.find((group) => group.date === date);
+
+        if (!group) {
+          group = { date, data: [], hour: [] };
+          result.push(group);
+        }
+
+        group.data.push(Number(item.value.toFixed(1)));
+        group.hour.push(hour);
+
+        return result;
+      }, [])
+      .map((group) => ({
+        name: group.date,
+        data: [
+          {
+            name: "GHI",
+            data: group.data,
+          },
+        ],
+        hour: group.hour,
+        isCustomeColor: true,
+      }));
+
+    const separatedData = transformedData.slice(0, periode);
+
+    return separatedData;
+  } catch (error) {
+    console.log(error);
+    return [
+      {
+        data: [
+          {
+            name: title,
+            data: [],
+          },
+        ],
+        hour: [],
+        isCustomeColor: false,
+        name: "-",
+      },
+    ];
+  }
+};
+
+function getHour24(dateString) {
+  const date = new Date(dateString);
+  const hours = date.getHours(); // Mengambil jam dalam format 24 jam
+  return hours <= 10 ? String(hours) : String(hours).padStart(2, "0");
+}
 
 const getDate = () => {
   const date = new Date(); // Replace this with your Date object

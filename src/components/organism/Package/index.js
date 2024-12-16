@@ -39,15 +39,31 @@ export default function Package() {
 
   const column = [
     {
-      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Category</p>,
-      selector: (row) => <div className="2xl:text-lg xl:text-xs font-normal text-black">{row.category.name}</div>,
+      name: (
+        <p className="2xl:text-lg xl:text-sm font-medium text-black">
+          Category
+        </p>
+      ),
+      selector: (row) => (
+        <div className="2xl:text-lg xl:text-xs font-normal text-black">
+          {row.category.name}
+        </div>
+      ),
     },
     {
-      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Type</p>,
-      selector: (row) => <div className="2xl:text-lg xl:text-xs font-normal text-black">{row.name}</div>,
+      name: (
+        <p className="2xl:text-lg xl:text-sm font-medium text-black">Type</p>
+      ),
+      selector: (row) => (
+        <div className="2xl:text-lg xl:text-xs font-normal text-black">
+          {row.name}
+        </div>
+      ),
     },
     {
-      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Price</p>,
+      name: (
+        <p className="2xl:text-lg xl:text-sm font-medium text-black">Price</p>
+      ),
       selector: (row) => (
         <div className="2xl:text-lg xl:text-xs font-normal text-black">
           {/* Check for price_monthly */}
@@ -86,7 +102,9 @@ export default function Package() {
     },
 
     {
-      name: <p className="2xl:text-lg xl:text-sm font-medium text-black">Aksi</p>,
+      name: (
+        <p className="2xl:text-lg xl:text-sm font-medium text-black">Aksi</p>
+      ),
       selector: (row) => (
         <div className="2xl:text-lg xl:text-xs font-normal text-white flex space-x-2">
           <button
@@ -104,7 +122,26 @@ export default function Package() {
               try {
                 // Set ID paket yang akan diedit
                 setID(row);
-                setFormData(row);
+
+                setFormData({
+                  ...row,
+                  price: parseFloat(
+                    [
+                      row.price_weekly,
+                      row.price_monthly,
+                      row.price_annual,
+                    ].find((value) => value !== "0.00") || 0
+                  ),
+                  features: row.features.map(({ feature }) => feature),
+                  periode:
+                    typePeriode[
+                      [
+                        row.price_weekly,
+                        row.price_monthly,
+                        row.price_annual,
+                      ].findIndex((value) => value !== "0.00")
+                    ],
+                });
 
                 // Buka modal
                 setIsOpenModal(true);
@@ -124,26 +161,23 @@ export default function Package() {
       ),
     },
   ];
+
   const initialData = {
-    category: "6",
-    type: "Forecast",
-    periode: "Monthly",
-    forecastPeriode: "Quarterly",
-    price_monthly: "500",
-    features: ["Feature 1", "Feature 2", "Feature 3"],
-  };
-  const [formData, setFormData] = useState({
-    category: 0,
+    category_id: "",
+    category: {},
     name: "",
     periode: "",
     description: "",
     price_monthly: 0,
+    price: 0,
     price_annual: 0,
     price_weekly: 0,
     plan_id: 0,
     features: ["", "", ""],
     qty: 1,
-  });
+  };
+
+  const [formData, setFormData] = useState(initialData);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -159,6 +193,7 @@ export default function Package() {
       price_annual: selectedPeriode === "Annually" ? formData.price : 0,
     });
   };
+
   const handlePriceChange = (e) => {
     const { value } = e.target;
     const selectedPeriode = formData.periode;
@@ -181,21 +216,27 @@ export default function Package() {
 
   const getUsersData = async () => {
     try {
-      axios.get(process.env.REACT_APP_URL_API + "/users", config).then(({ data }) => {
-        setUsers(
-          data.map((user) => ({
-            ...user,
-            name: user.name.includes("(?)") ? user.name.replace("(?)", " ") : user.name,
-          }))
-        );
-      });
+      axios
+        .get(process.env.REACT_APP_URL_API + "/users", config)
+        .then(({ data }) => {
+          setUsers(
+            data.map((user) => ({
+              ...user,
+              name: user.name.includes("(?)")
+                ? user.name.replace("(?)", " ")
+                : user.name,
+            }))
+          );
+        });
     } catch (error) {
       console.log(error);
     }
   };
   const getPlanData = async () => {
     try {
-      const response = await axios.get(process.env.REACT_APP_URL_API_2 + "/api/plans");
+      const response = await axios.get(
+        process.env.REACT_APP_URL_API_2 + "/api/plans"
+      );
       setPlans(response.data); // Assuming response.data contains the plans data
     } catch (error) {
       console.error("Error fetching plan data:", error);
@@ -204,7 +245,9 @@ export default function Package() {
 
   const getCategory = async () => {
     try {
-      const response = await axios.get(process.env.REACT_APP_URL_API_2 + "/api/categories");
+      const response = await axios.get(
+        process.env.REACT_APP_URL_API_2 + "/api/categories"
+      );
       setCatData(response.data); // Assuming response.data contains the plans data
     } catch (error) {
       console.error("Error fetching plan data:", error);
@@ -241,12 +284,14 @@ export default function Package() {
   };
   const delPackage = async () => {
     try {
-      axios.delete(process.env.REACT_APP_URL_API + "/plans/" + delData).then(() => {
-        setDelData();
-        getPlanData();
-        setIsOpen(false);
-        successToast("Berhasil menghapus data pengguna");
-      });
+      axios
+        .delete(process.env.REACT_APP_URL_API + "/plans/" + delData)
+        .then(() => {
+          setDelData();
+          getPlanData();
+          setIsOpen(false);
+          successToast("Berhasil menghapus data pengguna");
+        });
     } catch (error) {
       console.log(error);
       setDelData();
@@ -254,13 +299,17 @@ export default function Package() {
     }
   };
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [typeOptions, setTypeOptions] = useState(["Forecast", "Monitoring", "Forecast & Monitoring"]);
+  const [typeOptions, setTypeOptions] = useState([
+    "Forecast",
+    "Monitoring",
+    "Forecast & Monitoring",
+  ]);
   const [typePeriode] = useState(["Weekly", "Monthly", "Annually"]);
   const [forecastTypePeriode] = useState(["7 Days", "14 Days"]);
 
   const handleCategoryChange = (e) => {
     const selectedCatId = e.target.value;
-    setFormData({ ...formData, category: selectedCatId });
+    setFormData({ ...formData, category_id: selectedCatId });
 
     if (selectedCatId === "6") {
       setTypeOptions(["Forecast & Monitoring"]);
@@ -268,8 +317,9 @@ export default function Package() {
       setTypeOptions(["Forecast", "Monitoring"]);
     }
   };
+
   const submitData = {
-    category_id: formData.category,
+    category_id: formData.category_id,
     name: formData.name,
     price_weekly: formData.periode === "Weekly" ? formData.price_weekly : 0,
     price_monthly: formData.periode === "Monthly" ? formData.price_monthly : 0,
@@ -283,7 +333,10 @@ export default function Package() {
     } else {
       try {
         // Step 1: Create the main plan
-        const response = await axios.post(`${process.env.REACT_APP_URL_API}/plans`, submitData);
+        const response = await axios.post(
+          `${process.env.REACT_APP_URL_API}/plans`,
+          submitData
+        );
 
         // Step 2: Extract the plan_id from the response
         const planId = response.data.id;
@@ -298,29 +351,28 @@ export default function Package() {
         }));
 
         // Step 4: Send all feature objects concurrently
-        await Promise.all(featuresData.map((feature) => axios.post(`${process.env.REACT_APP_URL_API}/plan-features`, feature)));
+        await Promise.all(
+          featuresData.map((feature) =>
+            axios.post(
+              `${process.env.REACT_APP_URL_API}/plan-features`,
+              feature
+            )
+          )
+        );
 
         // Display success message
         successToast("New data added successfully!");
 
         // Step 5: Reset form data
-        setFormData({
-          category: 0,
-          name: "",
-          periode: "",
-          description: "",
-          price_monthly: 0,
-          price_annual: 0,
-          price_weekly: 0,
-          plan_id: 0,
-          features: ["", "", ""],
-          qty: 1,
-        });
+        setFormData(initialData);
 
         // Step 6: Refresh the plan data list
         await getPlanData();
       } catch (error) {
-        console.error("Error adding new data:", error.response ? error.response.data : error.message);
+        console.error(
+          "Error adding new data:",
+          error.response ? error.response.data : error.message
+        );
         failedToast("Error adding new data");
       }
     }
@@ -337,7 +389,13 @@ export default function Package() {
   const [isFormValid, setIsFormValid] = useState(false);
   useEffect(() => {
     // Cek apakah semua field sudah terisi
-    const isValid = formData.category && formData.name && formData.periode && formData.description && formData.price && formData.features.every((feature) => feature.trim() !== "");
+    const isValid =
+      formData.category &&
+      formData.name &&
+      formData.periode &&
+      formData.description &&
+      formData.price &&
+      formData.features.every((feature) => feature.trim() !== "");
 
     setIsFormValid(isValid);
   }, [formData]);
@@ -347,23 +405,49 @@ export default function Package() {
       <div className="flex justify-between">
         <h1 className="font-semibold text-4xl pb-6">Package List</h1>
         <div>
-          <button className="rounded-lg px-8 py-2 text-white bg-[#00672E] hover:opacity-60" onClick={() => setIsOpenModal(true)}>
+          <button
+            className="rounded-lg px-8 py-2 text-white bg-[#00672E] hover:opacity-60"
+            onClick={() => setIsOpenModal(true)}
+          >
             Tambah Package
           </button>
         </div>
       </div>
 
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={() => setIsOpen(false)}>
-          <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={() => setIsOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
             <div className="fixed inset-0 bg-black bg-opacity-25" />
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
                 <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
                     Peringatan
                   </Dialog.Title>
                   <div className="mt-2">
@@ -395,26 +479,58 @@ export default function Package() {
         </Dialog>
       </Transition>
       <Transition appear show={isOpenModal} as={Fragment}>
-        <Dialog as="div" className="relative z-10 " onClose={() => setIsOpen(false)}>
-          <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
+        <Dialog
+          as="div"
+          className="relative z-10 "
+          onClose={() => setIsOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
             <div className="fixed inset-0 bg-black bg-opacity-25 " />
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
             <div className="flex min-h-full  items-center justify-center p-4 text-center">
-              <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
                 <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
                     {isEditMode ? "Edit Package" : "Add Package"}
                   </Dialog.Title>
 
                   {/* Category Dropdown */}
                   <div className="mt-2">
-                    <label htmlFor="category" className="block text-sm/6 font-medium text-gray-900">
+                    <label
+                      htmlFor="category"
+                      className="block text-sm/6 font-medium text-gray-900"
+                    >
                       Category
                     </label>
                     <div className="mt-2">
-                      <select id="category" name="category" className="bg-[#F4F4F4] rounded-[10px] w-full py-2 px-4 border focus:outline-main-500" value={formData.category_id} onChange={handleCategoryChange}>
+                      <select
+                        id="category"
+                        name="category"
+                        className="bg-[#F4F4F4] rounded-[10px] w-full py-2 px-4 border focus:outline-main-500"
+                        value={formData?.category_id || ""}
+                        onChange={handleCategoryChange}
+                      >
                         <option value="">Select Category</option>
                         {catData.map((cat) => (
                           <option key={cat.id} value={cat.id}>
@@ -427,11 +543,20 @@ export default function Package() {
 
                   {/* Type Dropdown */}
                   <div className="mt-2">
-                    <label htmlFor="type" className="block text-sm/6 font-medium text-gray-900">
+                    <label
+                      htmlFor="type"
+                      className="block text-sm/6 font-medium text-gray-900"
+                    >
                       Type
                     </label>
                     <div className="mt-2">
-                      <select id="type" name="name" className="bg-[#F4F4F4] rounded-[10px] w-full py-2 px-4 border focus:outline-main-500" value={formData.name} onChange={handleChange}>
+                      <select
+                        id="type"
+                        name="name"
+                        className="bg-[#F4F4F4] rounded-[10px] w-full py-2 px-4 border focus:outline-main-500"
+                        value={formData.name || ""}
+                        onChange={handleChange}
+                      >
                         <option value="">Select Type</option>
                         {typeOptions.map((type, index) => (
                           <option key={index} value={type}>
@@ -442,11 +567,20 @@ export default function Package() {
                     </div>
                   </div>
                   <div className="mt-2">
-                    <label htmlFor="periode" className="block text-sm/6 font-medium text-gray-900">
+                    <label
+                      htmlFor="periode"
+                      className="block text-sm/6 font-medium text-gray-900"
+                    >
                       Periode
                     </label>
                     <div className="mt-2">
-                      <select id="periode" name="periode" className="bg-[#F4F4F4] rounded-[10px] w-full py-2 px-4 border focus:outline-main-500" value={formData.periode} onChange={handlePeriodeChange}>
+                      <select
+                        id="periode"
+                        name="periode"
+                        className="bg-[#F4F4F4] rounded-[10px] w-full py-2 px-4 border focus:outline-main-500"
+                        value={formData.periode || ""}
+                        onChange={handlePeriodeChange}
+                      >
                         <option value="">Select Periode</option>
                         {typePeriode.map((type, index) => (
                           <option key={index} value={type}>
@@ -457,7 +591,10 @@ export default function Package() {
                     </div>
                   </div>
                   <div className="mt-2">
-                    <label htmlFor="forecast-periode" className="block text-sm/6 font-medium text-gray-900">
+                    <label
+                      htmlFor="forecast-periode"
+                      className="block text-sm/6 font-medium text-gray-900"
+                    >
                       Forecast Periode
                     </label>
                     <div className="mt-2">
@@ -466,7 +603,7 @@ export default function Package() {
                         name="description"
                         autoComplete="forecast-periode-name"
                         className="bg-[#F4F4F4] rounded-[10px] w-full py-2 px-4 border focus:outline-main-500"
-                        value={formData.description}
+                        value={formData.description || ""}
                         onChange={handleChange}
                       >
                         <option value="">Select Forecast Periode</option>
@@ -481,36 +618,70 @@ export default function Package() {
 
                   {/* Price Input */}
                   <div className="mt-2">
-                    <label htmlFor="price" className="block text-sm/6 font-medium text-gray-900">
+                    <label
+                      htmlFor="price"
+                      className="block text-sm/6 font-medium text-gray-900"
+                    >
                       Price
                     </label>
-                    <input type="number" name="price" className="bg-[#F4F4F4] rounded-[10px] w-full py-2 px-4 border focus:outline-main-500" placeholder="Price" value={formData.price} onChange={handlePriceChange} />
+                    <input
+                      type="number"
+                      name="price"
+                      className="bg-[#F4F4F4] rounded-[10px] w-full py-2 px-4 border focus:outline-main-500"
+                      placeholder="Price"
+                      value={formData.price || ""}
+                      onChange={handlePriceChange}
+                    />
                   </div>
 
                   {/* Features Input */}
                   <div className="mt-2">
-                    <label htmlFor="feature" className="block text-sm/6 font-medium text-gray-900">
+                    <label
+                      htmlFor="feature"
+                      className="block text-sm/6 font-medium text-gray-900"
+                    >
                       Feature
                     </label>
                   </div>
-                  {formData.features.map((feature, index) => (
-                    <div className="mt-2" key={index}>
-                      <input
-                        type="text"
-                        className="bg-[#F4F4F4] rounded-[10px] w-full py-2 px-4 border focus:outline-main-500"
-                        placeholder={`Feature ${index + 1}`}
-                        value={feature}
-                        onChange={(e) => handleFeatureChange(index, e.target.value)}
-                      />
-                    </div>
-                  ))}
+                  {formData.features.map((feature, index) => {
+                    return (
+                      <div className="mt-2" key={index}>
+                        <input
+                          type="text"
+                          className="bg-[#F4F4F4] rounded-[10px] w-full py-2 px-4 border focus:outline-main-500"
+                          placeholder={`Feature ${index + 1}`}
+                          value={feature}
+                          onChange={(e) =>
+                            handleFeatureChange(index, e.target.value)
+                          }
+                        />
+                      </div>
+                    );
+                  })}
 
                   {/* Submit and Cancel Buttons */}
                   <div className="mt-4 flex justify-end gap-4">
-                    <button type="button" className="bg-red-100 text-red-900 hover:bg-red-200 px-4 py-2 rounded-md" onClick={() => setIsOpenModal(false)}>
+                    <button
+                      type="button"
+                      className="bg-red-100 text-red-900 hover:bg-red-200 px-4 py-2 rounded-md"
+                      onClick={() => {
+                        setIsOpenModal(false);
+                        setFormData(initialData);
+                        setIsEditMode(false);
+                      }}
+                    >
                       Cancel
                     </button>
-                    <button type="button" className={`${isFormValid ? "bg-green-100 text-green-900 hover:bg-green-200" : "bg-gray-200 text-gray-500 cursor-not-allowed"} px-4 py-2 rounded-md`} onClick={handleSubmit} disabled={!isFormValid}>
+                    <button
+                      type="button"
+                      className={`${
+                        isFormValid
+                          ? "bg-green-100 text-green-900 hover:bg-green-200"
+                          : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      } px-4 py-2 rounded-md`}
+                      onClick={handleSubmit}
+                      disabled={!isFormValid}
+                    >
                       {isEditMode ? "Update" : "Submit"}
                     </button>
                   </div>
