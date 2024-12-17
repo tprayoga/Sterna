@@ -743,6 +743,13 @@ const DataPrakiraan = () => {
         "Curah Hujan",
         dataPayment?.paket || 7
       ).then(setDataCurahHujan);
+      getDailyPrakiraanData(
+        "PV",
+        lonLat.lon,
+        lonLat.lat,
+        "PV Output",
+        dataPayment?.paket || 7
+      ).then(setDataIndeksKebeningan);
 
       // finish
 
@@ -2021,8 +2028,13 @@ const DataPrakiraan = () => {
                       },
                     }}
                     yasis={{
-                      max: 200,
+                      max: getMaxValue(dataIndeksKebeningan),
                       tickAmount: 4,
+                      labels: {
+                        formatter: function (value) {
+                          return Math.ceil(value);
+                        },
+                      },
                     }}
                     tooltip={{
                       x: {

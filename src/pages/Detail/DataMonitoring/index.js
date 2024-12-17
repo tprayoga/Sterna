@@ -437,6 +437,9 @@ const DataMonitoring = () => {
         lonLat.lat,
         "Curah Hujan"
       ).then(setDataCurahHujan);
+      getDailyMonitoringData("PV", lonLat.lon, lonLat.lat, "PV Output").then(
+        setDataIndeksKebeningan
+      );
 
       // getPrakiraanMonitoring(
       //   lonLat.lon,
@@ -844,6 +847,15 @@ const DataMonitoring = () => {
                   colors={["#FFA537"]}
                   maxCount={7}
                   columnWidth={80}
+                  yasis={{
+                    max: getMaxValue(dataGhi),
+                    tickAmount: 4,
+                    labels: {
+                      formatter: function (value) {
+                        return Math.ceil(value);
+                      },
+                    },
+                  }}
                   xasis={{
                     axisBorder: {
                       show: false,
@@ -1128,8 +1140,13 @@ const DataMonitoring = () => {
                       },
                     }}
                     yasis={{
-                      max: 200,
+                      max: getMaxValue(dataIndeksKebeningan),
                       tickAmount: 4,
+                      labels: {
+                        formatter: function (value) {
+                          return Math.ceil(value);
+                        },
+                      },
                     }}
                     tooltip={{
                       x: {
@@ -1396,4 +1413,19 @@ function getHour24(dateString) {
   const date = new Date(dateString);
   const hours = date.getHours();
   return hours.toString().padStart(2, "0");
+}
+
+function getMaxValue(dataArray) {
+  let maxValue = -Infinity;
+
+  dataArray.forEach((day) => {
+    day.data.forEach((item) => {
+      const currentMax = Math.max(...item.data);
+      if (currentMax > maxValue) {
+        maxValue = currentMax;
+      }
+    });
+  });
+
+  return Number(Math.ceil(maxValue));
 }
