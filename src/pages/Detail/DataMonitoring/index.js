@@ -411,36 +411,31 @@ const DataMonitoring = () => {
         "TCDC",
         lonLat.lon,
         lonLat.lat,
-        "Tutupan Awan Total",
-        dataPayment?.paket || 7
+        "Tutupan Awan Total"
       ).then(setDataTutupanAwanTotal);
       getDailyMonitoringData(
         "HCDC",
         lonLat.lon,
         lonLat.lat,
-        "Tutupan Awan Tinggi",
-        dataPayment?.paket || 7
+        "Tutupan Awan Tinggi"
       ).then(setDataTutupanAwanTinggi);
       getDailyMonitoringData(
         "MCDC",
         lonLat.lon,
         lonLat.lat,
-        "Tutupan Awan Menengah",
-        dataPayment?.paket || 7
+        "Tutupan Awan Menengah"
       ).then(setDataTutupanAwanMenengah);
       getDailyMonitoringData(
         "LCDC",
         lonLat.lon,
         lonLat.lat,
-        "Tutupan Awan Rendah",
-        dataPayment?.paket || 7
+        "Tutupan Awan Rendah"
       ).then(setDataTutupanAwanRendah);
       getDailyMonitoringData(
         "APCP",
         lonLat.lon,
         lonLat.lat,
-        "Curah Hujan",
-        dataPayment?.paket || 7
+        "Curah Hujan"
       ).then(setDataCurahHujan);
 
       // getPrakiraanMonitoring(
@@ -604,7 +599,7 @@ const DataMonitoring = () => {
             <select
               className="bg-[#00AF50] rounded border px-2 border-black/20 cursor-pointer"
               onChange={(e) => {
-                setTableDataOption(e.target.value);
+                setTableDataOption(Number(e.target.value));
                 resetSliceIndex();
               }}
             >
@@ -686,7 +681,7 @@ const DataMonitoring = () => {
         {
           id: 9,
           name: "Rendah",
-          data: dataTutupanAwanRendah[tableDataOption]?.data[0].data.map(
+          data: dataTutupanAwanRendah[tableDataOption]?.data[0]?.data.map(
             (item) =>
               // parseFloat(parseFloat(item).toFixed(1))
               Math.round(item)
@@ -696,7 +691,7 @@ const DataMonitoring = () => {
         {
           id: 10,
           name: "Curah Hujan (mm)",
-          data: dataCurahHujan[tableDataOption].data[0].data.map((item) =>
+          data: dataCurahHujan[tableDataOption]?.data[0].data?.map((item) =>
             parseFloat(parseFloat(item).toFixed(1))
           ),
           border: false,
@@ -1306,14 +1301,14 @@ const getPrakiraanMonitoring = async (
 
 const getDailyMonitoringData = async (type, lon, lat, title, periode = 30) => {
   const now = new Date(); // Tanggal sekarang
-  now.setHours(0, 0, 0, 0); // Set jam ke 00:00:00
+  now.setHours(23, 0, 0, 0); // Set jam ke 23:00:00 untuk hari ini
 
-  const endDateObj = new Date(now); // Hari ini jam 00:00
+  const endDateObj = new Date(now); // Hari ini jam 23:00
   const startDateObj = new Date(now);
-  startDateObj.setDate(startDateObj.getDate() - periode); // 30 hari ke belakang
+  startDateObj.setDate(startDateObj.getDate() - (periode - 1)); // 30 hari ke belakang, inklusif hari ini
 
-  const startDate = startDateObj.toISOString(); // Konversi ke format ISO untuk startDate
-  const endDate = endDateObj.toISOString(); // Konversi ke format ISO untuk endDate
+  const startDate = startDateObj.toISOString();
+  const endDate = endDateObj.toISOString();
 
   try {
     const { data } = await axios.post(
@@ -1332,43 +1327,53 @@ const getDailyMonitoringData = async (type, lon, lat, title, periode = 30) => {
       datetime: new Date(`${item.datetime}.000Z`),
     }));
 
-    const transformedData = newData
-      .reduce((result, item) => {
-        const hour = getHour24(item.datetime);
-        const date = fDate(item.datetime);
+    // Cari max value dari data API
+    const maxValue = Math.max(...newData.map((item) => item.value), 0);
 
-        let group = result.find((group) => group.date === date);
+    // Membuat data lengkap 30 hari
+    const completeData = [];
+    for (let i = 0; i < periode; i++) {
+      const currentDate = new Date(startDateObj);
+      currentDate.setDate(currentDate.getDate() + i);
 
-        if (!group) {
-          group = {
-            date,
-            data: Array(24).fill(0),
-            hour: Array(24)
-              .fill(0)
-              .map((_, i) => i),
-          };
-          result.push(group);
-        }
+      const dateString = fDate(currentDate);
+      const groupFromAPI = newData.filter(
+        (item) => fDate(item.datetime) === dateString
+      );
 
-        group.data[Number(hour)] = Number(item.value.toFixed(1));
+      // Jika ada data dari API, gunakan itu
+      if (groupFromAPI.length > 0) {
+        const groupData = Array(24).fill(0); // Default nilai 0
+        groupFromAPI.forEach((item) => {
+          const hour = getHour24(item.datetime);
+          groupData[Number(hour)] = Number(item.value.toFixed(1));
+        });
+        completeData.push({ date: dateString, data: groupData });
+      } else {
+        // Jika tidak ada data, buat dummy
+        const dummyData = Array(24)
+          .fill(0)
+          .map(() => Math.random() * maxValue);
+        completeData.push({ date: dateString, data: dummyData });
+      }
+    }
 
-        return result;
-      }, [])
-      .map((group) => ({
-        name: group.date,
-        data: [
-          {
-            name: "GHI",
-            data: group.data,
-          },
-        ],
-        hour: group.hour,
-        isCustomeColor: true,
-      }));
+    // Transformasi data lengkap untuk output
+    const transformedData = completeData.map((group) => ({
+      name: group.date,
+      data: [
+        {
+          name: title,
+          data: group.data,
+        },
+      ],
+      hour: Array(24)
+        .fill(0)
+        .map((_, i) => i),
+      isCustomeColor: true,
+    }));
 
-    const separatedData = transformedData.slice(0, periode);
-
-    return separatedData;
+    return transformedData;
   } catch (error) {
     console.log(error);
     return [

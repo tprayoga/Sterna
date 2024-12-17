@@ -2351,7 +2351,7 @@ const getDailyPrakiraanData = async (type, lon, lat, title, periode = 7) => {
         name: group.date,
         data: [
           {
-            name: "GHI",
+            name: title,
             data: group.data,
           },
         ],
