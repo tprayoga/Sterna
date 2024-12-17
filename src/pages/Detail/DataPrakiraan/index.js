@@ -677,7 +677,7 @@ const DataPrakiraan = () => {
         "VGRD",
         lonLat.lon,
         lonLat.lat,
-        "Data Angin",
+        "Data Arah Angin",
         dataPayment?.paket || 7
       ).then(setDataArahAngin);
       getDailyPrakiraanData(

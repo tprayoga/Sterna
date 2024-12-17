@@ -51,7 +51,7 @@ const DataMonitoring = () => {
       try {
         const { data } = await axios.get(
           // `${process.env.REACT_APP_URL_API}/payment/user`,
-          `${process.env.REACT_APP_URL_API}/subscription`,
+          `${process.env.REACT_APP_URL_API}/subscriptions/user/${user?.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -70,7 +70,7 @@ const DataMonitoring = () => {
           updated_at: fDateTime(item.updated_at, "yyyy-MM-dd HH:mm:ss"),
         }));
 
-        setListPayment(data);
+        setListPayment(newData);
       } catch (error) {
         console.log(error);
       }
@@ -377,114 +377,180 @@ const DataMonitoring = () => {
     setUpdated(monthData.lastMonth);
 
     if (lonLat.lon && lonLat.lat) {
-      getPrakiraanMonitoring(
+      getDailyMonitoringData("DSWRF", lonLat.lon, lonLat.lat, "GHI").then(
+        setDataGhi
+      );
+      getDailyMonitoringData(
+        "VGRD",
         lonLat.lon,
         lonLat.lat,
-        monthData.day,
-        monthData.month,
-        monthData.year,
-        "GHI",
-        "ghi-harian"
-      ).then((res) => setDataGhi(res));
-      getPrakiraanMonitoring(
+        "Data arah Angin"
+      ).then(setDataArahAngin);
+      getDailyMonitoringData(
+        "UGRD",
         lonLat.lon,
         lonLat.lat,
-        monthData.day,
-        monthData.month,
-        monthData.year,
-        "PV Output",
-        "pv-output-harian"
-      ).then((res) => setDataIndeksKebeningan(res));
-      getPrakiraanMonitoring(
+        "Data kecepatan angin"
+      ).then(setDataKecepatanAngin);
+      getDailyMonitoringData(
+        "GUST",
         lonLat.lon,
         lonLat.lat,
-        monthData.day,
-        monthData.month,
-        monthData.year,
-        "Arah Angin",
-        "arah-angin-harian"
-      ).then((res) => setDataArahAngin(res));
-      getPrakiraanMonitoring(
+        "Data kecepatan angin maksimum"
+      ).then(setDataKecepatanAnginMaksimum);
+      getDailyMonitoringData(
+        "TMAX",
         lonLat.lon,
         lonLat.lat,
-        monthData.day,
-        monthData.month,
-        monthData.year,
-        "Angin",
-        "kecepatan-angin-harian"
-      ).then((res) => setDataKecepatanAngin(res));
-      getPrakiraanMonitoring(
+        "Suhu Maksimum"
+      ).then(setDataSuhuMaksimum);
+      getDailyMonitoringData("TMP", lonLat.lon, lonLat.lat, "Suhu").then(
+        setDataSuhu
+      );
+      getDailyMonitoringData(
+        "TCDC",
         lonLat.lon,
         lonLat.lat,
-        monthData.day,
-        monthData.month,
-        monthData.year,
-        "Angin Maksimum",
-        "kecepatan-angin-maksimum-harian"
-      ).then((res) => setDataKecepatanAnginMaksimum(res));
-      getPrakiraanMonitoring(
-        lonLat.lon,
-        lonLat.lat,
-        monthData.day,
-        monthData.month,
-        monthData.year,
-        "Suhu",
-        "temperature-harian"
-      ).then((res) => setDataSuhu(res));
-      getPrakiraanMonitoring(
-        lonLat.lon,
-        lonLat.lat,
-        monthData.day,
-        monthData.month,
-        monthData.year,
         "Tutupan Awan Total",
-        "tutupan-awan-total-harian"
-      ).then((res) => setDataTutupanAwanTotal(res));
-      getPrakiraanMonitoring(
+        dataPayment?.paket || 7
+      ).then(setDataTutupanAwanTotal);
+      getDailyMonitoringData(
+        "HCDC",
         lonLat.lon,
         lonLat.lat,
-        monthData.day,
-        monthData.month,
-        monthData.year,
         "Tutupan Awan Tinggi",
-        "tutupan-awan-tinggi-harian"
-      ).then((res) => setDataTutupanAwanTinggi(res));
-      getPrakiraanMonitoring(
+        dataPayment?.paket || 7
+      ).then(setDataTutupanAwanTinggi);
+      getDailyMonitoringData(
+        "MCDC",
         lonLat.lon,
         lonLat.lat,
-        monthData.day,
-        monthData.month,
-        monthData.year,
-        "Tutupan Awan Tinggi",
-        "tutupan-awan-menengah-harian"
-      ).then((res) => setDataTutupanAwanMenengah(res));
-      getPrakiraanMonitoring(
+        "Tutupan Awan Menengah",
+        dataPayment?.paket || 7
+      ).then(setDataTutupanAwanMenengah);
+      getDailyMonitoringData(
+        "LCDC",
         lonLat.lon,
         lonLat.lat,
-        monthData.day,
-        monthData.month,
-        monthData.year,
-        "Tutupan Awan Tinggi",
-        "tutupan-awan-rendah-harian"
-      ).then((res) => setDataTutupanAwanRendah(res));
-      getPrakiraanMonitoring(
+        "Tutupan Awan Rendah",
+        dataPayment?.paket || 7
+      ).then(setDataTutupanAwanRendah);
+      getDailyMonitoringData(
+        "APCP",
         lonLat.lon,
         lonLat.lat,
-        monthData.day,
-        monthData.month,
-        monthData.year,
-        "Tutupan Awan Tinggi",
-        "curah-hujan-harian"
-      ).then((res) => setDataCurahHujan(res));
-      getPrakiraanMonitoring(
-        lonLat.lon,
-        lonLat.lat,
-        monthData.day,
-        monthData.month,
-        monthData.year,
-        "Temperature Maksimum",
-        "temperature-maksimum-harian"
-      ).then((res) => setDataSuhuMaksimum(res));
+        "Curah Hujan",
+        dataPayment?.paket || 7
+      ).then(setDataCurahHujan);
+
+      // getPrakiraanMonitoring(
+      //   lonLat.lon,
+      //   lonLat.lat,
+      //   monthData.day,
+      //   monthData.month,
+      //   monthData.year,
+      //   "GHI",
+      //   "ghi-harian"
+      // ).then((res) => setDataGhi(res));
+      // getPrakiraanMonitoring(
+      //   lonLat.lon,
+      //   lonLat.lat,
+      //   monthData.day,
+      //   monthData.month,
+      //   monthData.year,
+      //   "PV Output",
+      //   "pv-output-harian"
+      // ).then((res) => setDataIndeksKebeningan(res));
+      // getPrakiraanMonitoring(
+      //   lonLat.lon,
+      //   lonLat.lat,
+      //   monthData.day,
+      //   monthData.month,
+      //   monthData.year,
+      //   "Arah Angin",
+      //   "arah-angin-harian"
+      // ).then((res) => setDataArahAngin(res));
+      // getPrakiraanMonitoring(
+      //   lonLat.lon,
+      //   lonLat.lat,
+      //   monthData.day,
+      //   monthData.month,
+      //   monthData.year,
+      //   "Angin",
+      //   "kecepatan-angin-harian"
+      // ).then((res) => setDataKecepatanAngin(res));
+      // getPrakiraanMonitoring(
+      //   lonLat.lon,
+      //   lonLat.lat,
+      //   monthData.day,
+      //   monthData.month,
+      //   monthData.year,
+      //   "Angin Maksimum",
+      //   "kecepatan-angin-maksimum-harian"
+      // ).then((res) => setDataKecepatanAnginMaksimum(res));
+      // getPrakiraanMonitoring(
+      //   lonLat.lon,
+      //   lonLat.lat,
+      //   monthData.day,
+      //   monthData.month,
+      //   monthData.year,
+      //   "Suhu",
+      //   "temperature-harian"
+      // ).then((res) => setDataSuhu(res));
+      // getPrakiraanMonitoring(
+      //   lonLat.lon,
+      //   lonLat.lat,
+      //   monthData.day,
+      //   monthData.month,
+      //   monthData.year,
+      //   "Tutupan Awan Total",
+      //   "tutupan-awan-total-harian"
+      // ).then((res) => setDataTutupanAwanTotal(res));
+      // getPrakiraanMonitoring(
+      //   lonLat.lon,
+      //   lonLat.lat,
+      //   monthData.day,
+      //   monthData.month,
+      //   monthData.year,
+      //   "Tutupan Awan Tinggi",
+      //   "tutupan-awan-tinggi-harian"
+      // ).then((res) => setDataTutupanAwanTinggi(res));
+      // getPrakiraanMonitoring(
+      //   lonLat.lon,
+      //   lonLat.lat,
+      //   monthData.day,
+      //   monthData.month,
+      //   monthData.year,
+      //   "Tutupan Awan Tinggi",
+      //   "tutupan-awan-menengah-harian"
+      // ).then((res) => setDataTutupanAwanMenengah(res));
+      // getPrakiraanMonitoring(
+      //   lonLat.lon,
+      //   lonLat.lat,
+      //   monthData.day,
+      //   monthData.month,
+      //   monthData.year,
+      //   "Tutupan Awan Tinggi",
+      //   "tutupan-awan-rendah-harian"
+      // ).then((res) => setDataTutupanAwanRendah(res));
+      // getPrakiraanMonitoring(
+      //   lonLat.lon,
+      //   lonLat.lat,
+      //   monthData.day,
+      //   monthData.month,
+      //   monthData.year,
+      //   "Tutupan Awan Tinggi",
+      //   "curah-hujan-harian"
+      // ).then((res) => setDataCurahHujan(res));
+      // getPrakiraanMonitoring(
+      //   lonLat.lon,
+      //   lonLat.lat,
+      //   monthData.day,
+      //   monthData.month,
+      //   monthData.year,
+      //   "Temperature Maksimum",
+      //   "temperature-maksimum-harian"
+      // ).then((res) => setDataSuhuMaksimum(res));
     }
   }, [lonLat]);
 
@@ -1031,130 +1097,133 @@ const DataMonitoring = () => {
             </div>
           )}
 
-          <div className="bg-[#EBFFE4] box-shadow rounded p-2 mt-2">
-            <p className="text-center text-xl ">PV Output</p>
-            <div className="flex mt-4 relative">
-              {/* Chart */}
-              <div
-                className={`absolute -bottom-4 z-[5] w-full ${
-                  !dataChartPv.length && "hidden"
-                }`}
-              >
-                <LineChart
-                  data={[
-                    {
-                      name: "Pv Output",
-                      data: dataChartPv
-                        .map((item) => item.data[0].data)
-                        .reduce((acc, cur) => acc.concat(cur), []),
-                    },
-                  ]}
-                  categories={newHour.map((f, i) => {
-                    return i % 3 === 0 ? `${f.split("||")[0]}` : "";
-                  })}
-                  colors={["#1DB5DB"]}
-                  gridColor={false}
-                  // floating={item.hour.length > 15 ? true : false}
-                  floating={false}
-                  height={200}
-                  xasis={{
-                    axisBorder: {
-                      show: false,
-                    },
-                    axisTicks: {
-                      show: false,
-                    },
-                  }}
-                  yasis={{
-                    max: 200,
-                    tickAmount: 4,
-                  }}
-                  tooltip={{
-                    x: {
-                      formatter: (
-                        seriesName,
-                        { series, seriesIndex, dataPointIndex, w }
-                      ) => {
-                        return `Pukul ${
-                          newHour[dataPointIndex].split("||")[0]
-                        }.00`;
-                      },
-                    },
-                  }}
-                />
-                <div className="absolute bottom-[25px] left-0.5 text-[8px] font-bold">
-                  Jam (
-                  {lonLat.utc === 7
-                    ? "WIB"
-                    : lonLat.utc === 8
-                    ? "WITA"
-                    : lonLat.utc === 9
-                    ? "WIT"
-                    : "Jam"}
-                  )
-                </div>
-              </div>
-
-              {dataChartPv.map((item, index) => (
+          {dataIndeksKebeningan.length ? (
+            <div className="bg-[#EBFFE4] box-shadow rounded p-2 mt-2">
+              <p className="text-center text-xl ">PV Output</p>
+              <div className="flex mt-4 relative">
+                {/* Chart */}
                 <div
-                  key={index}
-                  className={`text-center relative ${
-                    index === 0 ? "w-[112%]" : "w-[100%]"
+                  className={`absolute -bottom-4 z-[5] w-full ${
+                    !dataChartPv.length && "hidden"
                   }`}
                 >
-                  {/* Carousel */}
-                  <div className="bg-[#00AF50] flex justify-between items-center">
-                    {index === 0 ? (
-                      <button
-                        className="disabled:opacity-30 hover:opacity-30"
-                        disabled={
-                          item.name === dataIndeksKebeningan[0].name
-                            ? true
-                            : false
-                        }
-                        onClick={() => {
-                          setSliceIndeksKebeningan({
-                            ...sliceIndeksKebeningan,
-                            start: sliceIndeksKebeningan.start - 1,
-                            finish: sliceIndeksKebeningan.finish - 1,
-                          });
-                        }}
-                      >
-                        <IoIosArrowBack className="" />
-                      </button>
-                    ) : (
-                      <div />
-                    )}
-                    <p className="">{item.name}</p>
-                    {index === sliceIndeksKebeningan.for - 1 ? (
-                      <button
-                        className="disabled:opacity-30 hover:opacity-30"
-                        disabled={
-                          item.name ===
-                          dataIndeksKebeningan[dataIndeksKebeningan.length - 1]
-                            .name
-                            ? true
-                            : false
-                        }
-                        onClick={() => {
-                          setSliceIndeksKebeningan({
-                            ...sliceIndeksKebeningan,
-                            start: sliceIndeksKebeningan.start + 1,
-                            finish: sliceIndeksKebeningan.finish + 1,
-                          });
-                        }}
-                      >
-                        <IoIosArrowForward className="" />
-                      </button>
-                    ) : (
-                      <div />
-                    )}
+                  <LineChart
+                    data={[
+                      {
+                        name: "Pv Output",
+                        data: dataChartPv
+                          .map((item) => item.data[0].data)
+                          .reduce((acc, cur) => acc.concat(cur), []),
+                      },
+                    ]}
+                    categories={newHour.map((f, i) => {
+                      return i % 3 === 0 ? `${f.split("||")[0]}` : "";
+                    })}
+                    colors={["#1DB5DB"]}
+                    gridColor={false}
+                    // floating={item.hour.length > 15 ? true : false}
+                    floating={false}
+                    height={200}
+                    xasis={{
+                      axisBorder: {
+                        show: false,
+                      },
+                      axisTicks: {
+                        show: false,
+                      },
+                    }}
+                    yasis={{
+                      max: 200,
+                      tickAmount: 4,
+                    }}
+                    tooltip={{
+                      x: {
+                        formatter: (
+                          seriesName,
+                          { series, seriesIndex, dataPointIndex, w }
+                        ) => {
+                          return `Pukul ${
+                            newHour[dataPointIndex].split("||")[0]
+                          }.00`;
+                        },
+                      },
+                    }}
+                  />
+                  <div className="absolute bottom-[25px] left-0.5 text-[8px] font-bold">
+                    Jam (
+                    {lonLat.utc === 7
+                      ? "WIB"
+                      : lonLat.utc === 8
+                      ? "WITA"
+                      : lonLat.utc === 9
+                      ? "WIT"
+                      : "Jam"}
+                    )
                   </div>
-                  <div className="border rounded-br rounded-bl h-[200px]"></div>
                 </div>
-              ))}
+
+                {dataChartPv.map((item, index) => (
+                  <div
+                    key={index}
+                    className={`text-center relative ${
+                      index === 0 ? "w-[112%]" : "w-[100%]"
+                    }`}
+                  >
+                    {/* Carousel */}
+                    <div className="bg-[#00AF50] flex justify-between items-center">
+                      {index === 0 ? (
+                        <button
+                          className="disabled:opacity-30 hover:opacity-30"
+                          disabled={
+                            item.name === dataIndeksKebeningan[0].name
+                              ? true
+                              : false
+                          }
+                          onClick={() => {
+                            setSliceIndeksKebeningan({
+                              ...sliceIndeksKebeningan,
+                              start: sliceIndeksKebeningan.start - 1,
+                              finish: sliceIndeksKebeningan.finish - 1,
+                            });
+                          }}
+                        >
+                          <IoIosArrowBack className="" />
+                        </button>
+                      ) : (
+                        <div />
+                      )}
+                      <p className="">{item.name}</p>
+                      {index === sliceIndeksKebeningan.for - 1 ? (
+                        <button
+                          className="disabled:opacity-30 hover:opacity-30"
+                          disabled={
+                            item.name ===
+                            dataIndeksKebeningan[
+                              dataIndeksKebeningan.length - 1
+                            ].name
+                              ? true
+                              : false
+                          }
+                          onClick={() => {
+                            setSliceIndeksKebeningan({
+                              ...sliceIndeksKebeningan,
+                              start: sliceIndeksKebeningan.start + 1,
+                              finish: sliceIndeksKebeningan.finish + 1,
+                            });
+                          }}
+                        >
+                          <IoIosArrowForward className="" />
+                        </button>
+                      ) : (
+                        <div />
+                      )}
+                    </div>
+                    <div className="border rounded-br rounded-bl h-[200px]"></div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -1234,3 +1303,92 @@ const getPrakiraanMonitoring = async (
     ];
   }
 };
+
+const getDailyMonitoringData = async (type, lon, lat, title, periode = 30) => {
+  const now = new Date(); // Tanggal sekarang
+  now.setHours(0, 0, 0, 0); // Set jam ke 00:00:00
+
+  const endDateObj = new Date(now); // Hari ini jam 00:00
+  const startDateObj = new Date(now);
+  startDateObj.setDate(startDateObj.getDate() - periode); // 30 hari ke belakang
+
+  const startDate = startDateObj.toISOString(); // Konversi ke format ISO untuk startDate
+  const endDate = endDateObj.toISOString(); // Konversi ke format ISO untuk endDate
+
+  try {
+    const { data } = await axios.post(
+      `${process.env.REACT_APP_URL_API_3}/query`,
+      {
+        type: type,
+        latitude: lat,
+        longitude: lon,
+        starttime: startDate,
+        endtime: endDate,
+      }
+    );
+
+    const newData = data.data.map((item) => ({
+      ...item,
+      datetime: new Date(`${item.datetime}.000Z`),
+    }));
+
+    const transformedData = newData
+      .reduce((result, item) => {
+        const hour = getHour24(item.datetime);
+        const date = fDate(item.datetime);
+
+        let group = result.find((group) => group.date === date);
+
+        if (!group) {
+          group = {
+            date,
+            data: Array(24).fill(0),
+            hour: Array(24)
+              .fill(0)
+              .map((_, i) => i),
+          };
+          result.push(group);
+        }
+
+        group.data[Number(hour)] = Number(item.value.toFixed(1));
+
+        return result;
+      }, [])
+      .map((group) => ({
+        name: group.date,
+        data: [
+          {
+            name: "GHI",
+            data: group.data,
+          },
+        ],
+        hour: group.hour,
+        isCustomeColor: true,
+      }));
+
+    const separatedData = transformedData.slice(0, periode);
+
+    return separatedData;
+  } catch (error) {
+    console.log(error);
+    return [
+      {
+        data: [
+          {
+            name: title,
+            data: [],
+          },
+        ],
+        hour: [],
+        isCustomeColor: false,
+        name: "-",
+      },
+    ];
+  }
+};
+
+function getHour24(dateString) {
+  const date = new Date(dateString);
+  const hours = date.getHours();
+  return hours.toString().padStart(2, "0");
+}
