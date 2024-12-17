@@ -286,6 +286,13 @@ const DetailHomePage = ({
         "Curah Hujan",
         dataPayment?.paket || 7
       ).then(setDataCurahHujanPrakiraan);
+      getDailyPrakiraanData(
+        "PV",
+        longitude,
+        latitude,
+        "PV Output",
+        dataPayment?.paket || 7
+      ).then(setDataIndeksKebeningan);
 
       // getDailyPrakiraan("ghi-harian", longitude, latitude, "GHI").then((res) =>
       //   setDataGhi(res.length > 0 ? res.slice(0, dataPayment.paket) : res)
