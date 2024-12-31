@@ -29,7 +29,7 @@ import Skeleton from "react-loading-skeleton";
 import Cookies from "js-cookie";
 import Joyride from "react-joyride";
 import { setUser } from "@redux/features/auth/authSlice";
-import { fDate, fDateTime, fTime } from "@utils/format-date";
+import { fDate, fDateTime } from "@utils/format-date";
 
 const DataPrakiraan = () => {
   const navigate = useNavigate();
@@ -194,7 +194,7 @@ const DataPrakiraan = () => {
     const parts = inputDate.split("-");
     const outputDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
 
-    setLoadingDownloadPdf(true);
+    // setLoadingDownloadPdf(true);
     const origin = window.location.origin;
     const uri = `${origin}/detail/test-prakiraan?long=${longitude}&lat=${latitude}&region=${region}&province=${province}&data=${data}&package=${dayPackage}&updated=${updatedAt}&date=${outputDate}`;
 
@@ -1288,7 +1288,7 @@ const DataPrakiraan = () => {
           >
             Data Prakiraan
           </button>
-          <button
+          {/* <button
             className={`text-black px-4 pt-1 flex gap-1 items-center pb-6 hover:opacity-60 duration-150`}
             onClick={() => {
               if (!user) {
@@ -1302,7 +1302,7 @@ const DataPrakiraan = () => {
           >
             Monitoring{" "}
             {isSubscribeMonitoring.length && user ? null : <AiOutlineLock />}
-          </button>
+          </button> */}
           <div className="w-full border-b-2 absolute bottom-2" />
         </div>
 
@@ -1333,6 +1333,17 @@ const DataPrakiraan = () => {
                           : "text-black font-medium"
                       } group  flex w-full gap-2 items-center text-xs rounded-md disabled:opacity-50 px-1 py-2 font-medium`}
                       onClick={() => {
+                        // handleDownloadPdf(
+                        //   lonLat.lon,
+                        //   lonLat.lat,
+                        //   lonLat.region,
+                        //   lonLat.province,
+                        //   `Prakiraan-${lonLat.region}`,
+                        //   isTahunan,
+                        //   dataPayment?.paket,
+                        //   10,
+                        //   dataPayment?.updated
+                        // );
                         navigate(
                           `/detail/test-prakiraan?long=${lonLat?.lon}&lat=${lonLat?.lat}&region=${lonLat?.region}&province=${lonLat?.province}`
                         );
@@ -1872,7 +1883,14 @@ const DataPrakiraan = () => {
                                 width="100%"
                                 data={item2}
                                 height={"130"}
-                                maxCount={5}
+                                maxCount={getHigherValue(
+                                  item?.data?.length > sliceIndex.for
+                                    ? item.data.slice(
+                                        sliceIndex.start,
+                                        sliceIndex.end
+                                      )
+                                    : item.data
+                                )}
                               />
                               <p className="text-xs text-black/60">{item2}</p>
                             </div>
@@ -2405,6 +2423,10 @@ function getMaxValue(dataArray) {
   });
 
   return Number(Math.ceil(maxValue));
+}
+
+function getHigherValue(arr) {
+  return Math.ceil(Math.max(...arr));
 }
 
 function getHour24(dateString) {

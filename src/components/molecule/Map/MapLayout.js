@@ -500,10 +500,10 @@ const MapLayout = ({
               </h3>
               <div className="flex flex-col pt-2">
                 <span className="m-0 pb-1">
-                  Latitude : {selectedLocation.lat}
+                  Latitude : {selectedLocation.lat} °
                 </span>
                 <span className="m-0 p-0">
-                  Longitude : {selectedLocation.lon}
+                  Longitude : {selectedLocation.lon} °
                 </span>
               </div>
             </Popup>
@@ -580,10 +580,10 @@ const MapLayout = ({
               {/* <h3 className="font-bold py-2 text-[1.5rem]">{ghi} kWh/m2</h3> */}
               <div className="flex pt-2 font-semibold justify-between">
                 <span className="m-0 p-0">
-                  Longitude : {parseFloat(selectCoord?.Lon.toFixed(1))}
+                  Longitude : {parseFloat(selectCoord?.Lon.toFixed(1))} °
                 </span>
                 <span className="m-0 pb-1">
-                  Latitude : {parseFloat(selectCoord?.Lat.toFixed(1))}
+                  Latitude : {parseFloat(selectCoord?.Lat.toFixed(1))} °
                 </span>
               </div>
             </Popup>
@@ -887,10 +887,10 @@ const MapLayout = ({
             )}
             <div className="flex pt-2 font-semibold justify-between">
               <span className="m-0 p-0">
-                Longitude : {parseFloat(selectCoord?.Lon.toFixed(5))}
+                Longitude : {parseFloat(selectCoord?.Lon.toFixed(5))} °
               </span>
               <span className="m-0 pb-1">
-                Latitude : {parseFloat(selectCoord?.Lat.toFixed(5))}
+                Latitude : {parseFloat(selectCoord?.Lat.toFixed(5))} °
               </span>
             </div>
           </Popup>

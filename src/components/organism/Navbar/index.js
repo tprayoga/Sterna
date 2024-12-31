@@ -104,6 +104,9 @@ const Navbar = () => {
               width={"100%"}
               className="md:h-10 h-9 w-auto"
             />
+            <div className="p-1 rounded-lg mb-4">
+              <p className="text-sm text-gray-400">vBeta</p>
+            </div>
           </div>
           {user ? (
             <div className="flex gap-4">

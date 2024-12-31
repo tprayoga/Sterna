@@ -380,8 +380,12 @@ const MapLayouts = ({ mid, mapRef, setMid, selectedLocation, pos }) => {
                 {selectCoord?.PROVINSI}, {selectCoord?.KABUPATEN}
               </h3>
               <div className="flex flex-col pt-2">
-                <span className="m-0 pb-1">Latitude : {selectCoord?.Lat}</span>
-                <span className="m-0 p-0">Longitude : {selectCoord?.Lon}</span>
+                <span className="m-0 pb-1">
+                  Latitude : {selectCoord?.Lat} °
+                </span>
+                <span className="m-0 p-0">
+                  Longitude : {selectCoord?.Lon} °
+                </span>
               </div>
             </Popup>
           </Marker>
@@ -400,10 +404,10 @@ const MapLayouts = ({ mid, mapRef, setMid, selectedLocation, pos }) => {
               </h3>
               <div className="flex flex-col pt-2">
                 <span className="m-0 pb-1">
-                  Latitude : {selectedLocation.lat}
+                  Latitude : {selectedLocation.lat} °
                 </span>
                 <span className="m-0 p-0">
-                  Longitude : {selectedLocation.lon}
+                  Longitude : {selectedLocation.lon} °
                 </span>
               </div>
             </Popup>
@@ -530,10 +534,10 @@ const MapLayouts = ({ mid, mapRef, setMid, selectedLocation, pos }) => {
               </h3>
               <div className="flex flex-col pt-2">
                 <span className="m-0 pb-1">
-                  Latitude : {parseFloat(selectCoord?.Lat.toFixed(1))}
+                  Latitude : {parseFloat(selectCoord?.Lat.toFixed(1))} °
                 </span>
                 <span className="m-0 p-0">
-                  Longitude : {parseFloat(selectCoord?.Lon.toFixed(1))}
+                  Longitude : {parseFloat(selectCoord?.Lon.toFixed(1))} °
                 </span>
               </div>
             </Popup>

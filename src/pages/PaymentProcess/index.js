@@ -1,21 +1,26 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import ToastHook from "@hooks/Toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import { Dialog, Transition } from "@headlessui/react";
+import { IoIosClose } from "react-icons/io";
 
 const PaymentProcess = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   const { user, token } = useSelector((state) => state.auth);
+  const { successToast } = ToastHook();
 
   // retrieve data from state
   const pac = location.state?.pac;
   const locationDetail = location.state?.location;
+
+  // state
   const [data, setData] = useState();
   const [errorMaxSize, setErrorMaxSize] = useState(false);
-  const { successToast } = ToastHook();
+  const [openModal, setOpenModal] = useState(false);
 
   // dummy payment methods
   const paymentMethods = [
@@ -48,7 +53,7 @@ const PaymentProcess = () => {
             className="px-2 py-1 text-gray-500 border border-grey-300 "
             key={index}
           >
-            {char}
+            {index < 3 ? char : "x"}
           </p>
         ))}
       </div>
@@ -252,8 +257,8 @@ const PaymentProcess = () => {
                 {locationDetail.region}, {locationDetail.province}
               </p>
               <div>
-                <p>Latitude: {locationDetail.lat}</p>
-                <p>Longitude: {locationDetail.lon}</p>
+                <p>Latitude: {locationDetail.lat} °</p>
+                <p>Longitude: {locationDetail.lon} °</p>
               </div>
 
               <div>
@@ -360,7 +365,7 @@ const PaymentProcess = () => {
                 <button
                   disabled={!selectedFile}
                   className="p-2 w-[30%] text-center text-white bg-[#1F8A70] border rounded-md "
-                  onClick={() => handleSubmitPayment()}
+                  onClick={() => setOpenModal(true)}
                 >
                   Submit
                 </button>
@@ -375,8 +380,85 @@ const PaymentProcess = () => {
           </p>
         </div>
       )}
+
+      <DialogParameter
+        open={openModal}
+        onClose={() => {
+          setOpenModal(false);
+          handleSubmitPayment();
+        }}
+      />
     </>
   );
 };
 
 export default PaymentProcess;
+
+const DialogParameter = ({ open, onClose }) => {
+  return (
+    <Transition appear show={open} as={Fragment}>
+      <Dialog as="div" className="relative z-10" onClose={() => onClose(false)}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black/25" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <div className="flex justify-between gap-4 items-center">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-md font-medium leading-6 text-gray-900"
+                  >
+                    Perhatian
+                  </Dialog.Title>
+                  <button
+                    onClick={() => onClose(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <IoIosClose className="w-6 h-6" />
+                  </button>
+                </div>
+                <div className="mt-4">
+                  <p className="text-sm text-gray-500 text-justify">
+                    Produk ini versi beta. Media pembayaran saat ini belum
+                    tersedia. Silakan kontak:{" "}
+                    <a
+                      href="mailto:iklim.infrastruktur@bmkg.go.id"
+                      className="text-blue-500 hover:underline"
+                    >
+                      iklim.infrastruktur@bmkg.go.id
+                    </a>
+                  </p>
+                </div>
+
+                <div className="flex w-full">
+                  <button className="w-full p-2 mt-4 text-center text-white bg-[#1F8A70] border rounded-md" onClick={() => onClose(false)}>
+                    Mengerti
+                  </button>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  );
+};

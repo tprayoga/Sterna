@@ -40,7 +40,7 @@ const CustomBarChart = ({
     },
     stroke: {
       show: false,
-      width: 2,
+      width: 14,
       colors: ["transparent"],
     },
     xaxis: {

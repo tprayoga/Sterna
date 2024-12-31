@@ -1686,7 +1686,7 @@ const DataHistoris = () => {
               Data Prakiraan{" "}
               {subscriptionPrakiraan && user ? null : <AiOutlineLock />}
             </button>
-            <button
+            {/* <button
               className={`text-black px-4 pt-1 flex gap-1 items-center pb-6 hover:opacity-60 duration-150`}
               onClick={() => {
                 if (!user) {
@@ -1705,7 +1705,7 @@ const DataHistoris = () => {
             >
               Monitoring{" "}
               {subscriptionMonitoring && user ? null : <AiOutlineLock />}
-            </button>
+            </button> */}
             <div className="w-full border-b-2 absolute bottom-2" />
           </div>
 
@@ -2048,7 +2048,14 @@ const DataHistoris = () => {
                               width="100%"
                               data={item2}
                               height={"100"}
-                              maxCount={5}
+                              maxCount={getHigherValue(
+                                item.data.length > sliceIndex.for
+                                  ? item.data.slice(
+                                      sliceIndex.start,
+                                      sliceIndex.end
+                                    )
+                                  : item.data
+                              )}
                             />
                             <p className="text-xs text-black/60">{item2}</p>
                           </div>
@@ -2099,3 +2106,7 @@ const ModalChart = ({ data = [], categories = [], isTahunan, setState }) => {
     </div>
   );
 };
+
+function getHigherValue(arr) {
+  return Math.ceil(Math.max(...arr));
+}

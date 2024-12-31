@@ -1,6 +1,19 @@
 import React, { useEffect, useState, useRef } from "react";
-import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMapEvent, useMap, useMapEvents, ImageOverlay } from "react-leaflet";
-import { setLocationFilter, setRealCoordinate } from "@redux/features/location/locationSlice";
+import {
+  MapContainer,
+  TileLayer,
+  GeoJSON,
+  Marker,
+  Popup,
+  useMapEvent,
+  useMap,
+  useMapEvents,
+  ImageOverlay,
+} from "react-leaflet";
+import {
+  setLocationFilter,
+  setRealCoordinate,
+} from "@redux/features/location/locationSlice";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import * as ELG from "esri-leaflet-geocoder";
@@ -12,7 +25,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { setLonLat } from "@redux/features/location/locationSlice";
 
 const DetailMap = ({ zoom, center, data }) => {
-  const { lonLat, location, locationFilter } = useSelector((state) => state.location);
+  const { lonLat, location, locationFilter } = useSelector(
+    (state) => state.location
+  );
   const dispatch = useDispatch();
 
   const iconPerson = new L.Icon({
@@ -36,7 +51,13 @@ const DetailMap = ({ zoom, center, data }) => {
 
   return (
     <>
-      <MapContainer center={center} zoom={zoom} style={{ width: "100%", height: "100%", zIndex: 0 }} minZoom={5} attributionControl={false}>
+      <MapContainer
+        center={center}
+        zoom={zoom}
+        style={{ width: "100%", height: "100%", zIndex: 0 }}
+        minZoom={5}
+        attributionControl={false}
+      >
         <TileLayer
           // url="https://api.maptiler.com/maps/basic-v2/256/{z}/{x}/{y}.png?key=635oHCTIGdZ2lX8MtqJk"
           url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
@@ -49,8 +70,8 @@ const DetailMap = ({ zoom, center, data }) => {
           <Popup>
             <h3 className="font-bold">{data?.region}</h3>
             <div className="flex flex-col pt-2">
-              <span className="m-0 pb-1">Latitude : {data?.lat}</span>
-              <span className="m-0 p-0">Longitude : {data?.lon}</span>
+              <span className="m-0 pb-1">Latitude : {data?.lat} °</span>
+              <span className="m-0 p-0">Longitude : {data?.lon} °</span>
             </div>
           </Popup>
         </Marker>
